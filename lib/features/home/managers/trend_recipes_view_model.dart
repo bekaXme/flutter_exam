@@ -13,8 +13,8 @@ class TrendRecipesVM extends ChangeNotifier {
   Future<void> fetchTrendRecipes() async {
     isLoading = true;
     notifyListeners();
-    var response = await request.get('http://192.168.0.108:8888/api/v1/recipes/trending-recipe');
-    if (response.statusCode != 200) {
+    var response = await ApiClient().get('recipes/trending-recipe');
+    if (response != 200) {
       throw Exception('Failed to load trend recipes');
     } else {
       error = null;

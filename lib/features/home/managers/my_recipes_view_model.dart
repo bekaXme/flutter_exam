@@ -16,9 +16,9 @@ class MyRecipesVM extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var response = await request.get('recipes/list?Limit=2');
+      var response = await ApiClient().get('recipes/list?Limit=2');
 
-      if (response.statusCode != 200) {
+      if (response != 200) {
         throw Exception('Failed to load recipes');
       }
 

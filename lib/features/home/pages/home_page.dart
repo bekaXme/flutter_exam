@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    itemCount:5,
+                    itemCount: vm.appBarBottomList.length,
                     itemBuilder: (context, index) {
                       final category = vm.appBarBottomList[index];
                       final bool isFirst = index == 0;

@@ -13,8 +13,8 @@ class AppbarBottomVM extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      var response = await request.get('categories/list');
-      if (response.statusCode != 200) {
+      var response = await ApiClient().get('categories/list');
+      if (response != 200) {
         throw Exception('Failed to load categories');
       }
       error = null;

@@ -15,8 +15,8 @@ class TopChefsVM extends ChangeNotifier{
   Future<void> fetchChefs() async {
     isLoading = true;
     notifyListeners();
-    var response = await request.get('top-chefs/list');
-    if (response.statusCode != 200) {
+    var response = await ApiClient().get('top-chefs/list');
+    if (response != 200) {
       throw Exception('Failed to load trend recipes');
     }else {
       error = null;
