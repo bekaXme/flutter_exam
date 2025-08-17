@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exam/features/home/pages/chefs_page.dart';
 import 'package:flutter_exam/features/home/pages/trending_recipes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_exam/colors.dart';
@@ -11,12 +12,17 @@ import '../../features/home/pages/home_page.dart';
 import '../../features/home/pages/onboarding/onboarding_main.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/trendingRecipes',
+  initialLocation: '/chefs',
   routes: [
     GoRoute(
       path: '/home',
       name: '/home',
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: '/chefs',
+      name: '/chefs',
+      builder: (context, state) => const ChefsPage(),
     ),
     GoRoute(
       path: '/onboardingmain',

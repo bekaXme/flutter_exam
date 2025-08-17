@@ -4,7 +4,7 @@ import 'package:flutter_exam/core/result/result.dart';
 class ApiClient {
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "http://192.168.0.104:8888/api/v1/",
+      baseUrl: "http://192.168.0.108:8888/api/v1/",
       validateStatus: (status) => true,
     ),
   );
