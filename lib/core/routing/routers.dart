@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exam/features/home/pages/chef_account_page.dart';
 import 'package:flutter_exam/features/home/pages/chefs_page.dart';
 import 'package:flutter_exam/features/home/pages/trending_recipes.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +13,7 @@ import '../../features/home/pages/home_page.dart';
 import '../../features/home/pages/onboarding/onboarding_main.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/chefs',
+  initialLocation: '/chef_account',
   routes: [
     GoRoute(
       path: '/home',
@@ -20,13 +21,20 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const HomePage(),
     ),
     GoRoute(
+      path: '/chef_account',
+      name: 'chef_account',
+      builder: (context, state) {
+        return ChefAccountPage();
+      },
+    ),
+    GoRoute(
       path: '/chefs',
       name: '/chefs',
       builder: (context, state) => const ChefsPage(),
     ),
     GoRoute(
-      path: '/onboardingmain',
-      name: '/onboardingmain',
+      path: '/OnBoardingMain',
+      name: '/OnBoardingMain',
       builder: (context, state) => GetInspiredPage(),
     ),
     GoRoute(
@@ -181,7 +189,7 @@ class LoremWidget extends StatelessWidget {
         width: 356,
         height: 116,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12), // ✅ Correct usage
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.white, width: 1),
         ),
         child: Column(

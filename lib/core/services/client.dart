@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_exam/core/result/result.dart';
+import '../interceptor/auth_interceptor.dart';
+
 
 class ApiClient {
   final Dio dio = Dio(
@@ -8,6 +10,8 @@ class ApiClient {
       validateStatus: (status) => true,
     ),
   );
+
+
 
   Future<Result<T>> get<T>(String path, {Map<String, dynamic>? queryParameters}) async {
     try {

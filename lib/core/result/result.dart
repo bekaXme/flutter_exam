@@ -11,6 +11,8 @@ class Result<T> {
 
   T get value => data as T;
 
+  get statusCode => null;
+
   R fold<R>({
     required R Function(Exception error) onError,
     required R Function(T data) onSuccess,
