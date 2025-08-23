@@ -192,12 +192,63 @@ class LeaveReviewPage extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
-                            // TODO: Handle submit review
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  backgroundColor: AppColors.backgroundColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Thank you for your Review!',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Icon(
+                                        Icons.done_outline_sharp,
+                                        color: AppColors.pinkIconBack,
+                                        size: 60,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'Lorem ipsum dolor sit amet pretium cras id dui pellentesque ornare.',
+                                        style: TextStyle(color: Colors.white70),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context); // close dialog
+                                          Navigator.pop(context); // go back to home (optional)
+                                        },
+                                        child: const Text(
+                                          'Go To Home',
+                                          style: TextStyle(
+                                            color: AppColors.pinkIconBack,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
                           },
-                          child: const Text("Submit",
-                              style: TextStyle(color: Colors.white)),
+                          child: const Text(
+                            "Submit",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 32),
