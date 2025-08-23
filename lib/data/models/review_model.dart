@@ -25,13 +25,13 @@ class ReviewsModel {
     return ReviewsModel(
       reviewerPhoto: json['user']['profilePhoto'],
       reviewerUserName: json['user']['username'],
-      reviewerComment: json['reviewerComment'] ?? '',
+      reviewerComment: json['description'] ?? '', // Using description as fallback
       productPhoto: json['photo'],
       productName: json['title'],
-      rating: json['rating'],
+      rating: (json['rating'] is double ? json['rating'].toInt() : json['rating'] as int),
       firstName: json['user']['firstName'],
       lastName: json['user']['lastName'],
-      reviewsCount: json['reviewsCount'],
+      reviewsCount: (json['reviewsCount'] is double ? json['reviewsCount'].toInt() : json['reviewsCount'] as int),
     );
   }
 }

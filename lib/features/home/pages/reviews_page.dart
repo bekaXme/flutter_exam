@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../managers/reviews_view_model.dart';
 
@@ -10,9 +11,10 @@ class ReviewsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ReviewsVM()..fetchMyReviews(), // Trigger fetch on init
+      create: (_) => ReviewsVM(),
       child: Consumer<ReviewsVM>(
         builder: (context, vm, child) {
+          print('Reviewer List: ${vm.reviewerList}'); // Debug
           if (vm.isMyReviewsLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -48,11 +50,11 @@ class ReviewsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(14),
                         child: Image.network(
                           review.productPhoto,
-                          width: 100,
-                          height: 100,
+                          width: 162,
+                          height: 163,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -74,7 +76,7 @@ class ReviewsPage extends StatelessWidget {
                                 5,
                                     (index) => Icon(
                                   Icons.star,
-                                  color: index < review.rating ? Colors.yellow : Colors.grey,
+                                  color: index < review.rating ? Colors.white : Colors.grey,
                                   size: 16,
                                 ),
                               ),
@@ -86,16 +88,45 @@ class ReviewsPage extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             ),
-                            Text(
-                              '@${review.reviewerUserName} ${review.firstName} ${review.lastName}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
+                            const SizedBox(height: 8),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.network(
+                                    review.reviewerPhoto,
+                                    width: 20,
+                                    height: 20,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '@${review.reviewerUserName}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${review.firstName} ${review.lastName}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
                             ),
                             const SizedBox(height: 8),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                context.goNamed('/leaveReview');
+                              },
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                               child: const Text('Add Review', style: TextStyle(color: AppColors.pinkIconBack)),
                             ),
@@ -150,15 +181,19 @@ class ReviewsPage extends StatelessWidget {
                   ),
                 ),
                 Container(
+                  margin: const EdgeInsets.only(bottom: 36, left: 60, right: 60),
                   padding: const EdgeInsets.all(8),
-                  color: AppColors.pinkIconBack,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: AppColors.pinkIconBack,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       SvgPicture.asset('assets/icons/home.svg'),
-                      SvgPicture.asset('assets/icons/chat.svg'),
-                      SvgPicture.asset('assets/icons/layers.svg'),
-                      const Icon(Icons.circle, color: Colors.white, size: 8),
+                      SvgPicture.asset('assets/icons/community.svg'),
+                      SvgPicture.asset('assets/icons/categories.svg'),
+                      SvgPicture.asset('assets/icons/profile.svg'),
                     ],
                   ),
                 ),

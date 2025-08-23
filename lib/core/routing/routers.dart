@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/features/home/pages/chef_account_page.dart';
 import 'package:flutter_exam/features/home/pages/chefs_page.dart';
+import 'package:flutter_exam/features/home/pages/leave_review_page.dart';
 import 'package:flutter_exam/features/home/pages/reviews_page.dart';
 import 'package:flutter_exam/features/home/pages/trending_recipes.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +28,11 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         return ChefAccountPage();
       },
+    ),
+    GoRoute(
+      path: '/leaveReview',
+      name: '/leaveReview',
+      builder: (context, state) => const LeaveReviewPage(),
     ),
     GoRoute(
       path: '/reviews',
