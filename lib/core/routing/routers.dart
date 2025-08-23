@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/features/home/pages/chef_account_page.dart';
 import 'package:flutter_exam/features/home/pages/chefs_page.dart';
+import 'package:flutter_exam/features/home/pages/reviews_page.dart';
 import 'package:flutter_exam/features/home/pages/trending_recipes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_exam/colors.dart';
@@ -13,7 +14,7 @@ import '../../features/home/pages/home_page.dart';
 import '../../features/home/pages/onboarding/onboarding_main.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/chef_account',
+  initialLocation: '/reviews',
   routes: [
     GoRoute(
       path: '/home',
@@ -22,10 +23,15 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/chef_account',
-      name: 'chef_account',
+      name: '/chef_account',
       builder: (context, state) {
         return ChefAccountPage();
       },
+    ),
+    GoRoute(
+      path: '/reviews',
+      name: '/reviews',
+      builder: (context, state) => const ReviewsPage(),
     ),
     GoRoute(
       path: '/chefs',
