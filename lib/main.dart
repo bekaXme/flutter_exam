@@ -4,6 +4,7 @@ import 'package:flutter_exam/data/repositories/auth_repository.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'core/routing/routers.dart' as AppRouter;
+import 'features/home/managers/community_view_model.dart';
 import 'features/home/managers/view_model.dart';
 import 'features/home/pages/home_page.dart';
 
@@ -14,6 +15,7 @@ void main() {
         Provider(create: (_) => ApiClient()),
         Provider(create: (context) => AuthenticationRepository(client: context.read())),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => CommunityMainVM()..fetchCommunityData()),
       ],
       child: MainAccountPage(),
     ),

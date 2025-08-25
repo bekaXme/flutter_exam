@@ -7,6 +7,11 @@ class AppbarBottomVM extends ChangeNotifier {
   String? error;
   bool isLoading = true;
   List<AppBarBottomModel> appBarBottomList = [];
+  String? selectedCategory;
+  void updateSelectedCategory(String category) {
+    selectedCategory = category;
+    notifyListeners();
+  }
 
   Future<void> fetchAppBar() async {
     try {

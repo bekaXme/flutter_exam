@@ -4,18 +4,21 @@ import 'package:flutter_exam/features/home/pages/chefs_page.dart';
 import 'package:flutter_exam/features/home/pages/leave_review_page.dart';
 import 'package:flutter_exam/features/home/pages/reviews_page.dart';
 import 'package:flutter_exam/features/home/pages/trending_recipes.dart';
+import 'package:flutter_exam/features/home/pages/your_recipes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_exam/colors.dart';
 import '../../features/auth/pages/forgot_password_main.dart';
 import '../../features/auth/pages/gettingOTP.dart';
 import '../../features/auth/pages/log_in.dart';
 import '../../features/auth/pages/sign_up.dart';
+import '../../features/home/pages/community_item_page.dart';
+import '../../features/home/pages/community_page.dart';
 import '../../features/home/pages/cooking_level/allergy_meals.dart';
 import '../../features/home/pages/home_page.dart';
 import '../../features/home/pages/onboarding/onboarding_main.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/reviews',
+  initialLocation: '/community',
   routes: [
     GoRoute(
       path: '/home',
@@ -23,11 +26,29 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const HomePage(),
     ),
     GoRoute(
+      path: '/community',
+      name: '/community',
+      builder: (context, state) => const CommunityUsersPage(),
+    ),
+    GoRoute(
+      name: 'community-item',
+      path: '/community/:id',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return CommunityItemPage(recipeId: id);
+      },
+    ),
+    GoRoute(
       path: '/chef_account',
       name: '/chef_account',
       builder: (context, state) {
         return ChefAccountPage();
       },
+    ),
+    GoRoute(
+      path: '/yourRecipes',
+      name: '/yourRecipes',
+      builder: (context, state) => const YourRecipesPage(),
     ),
     GoRoute(
       path: '/leaveReview',
