@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exam/data/models/onboarding/onboarding_model.dart';
 import 'package:flutter_exam/features/home/pages/chef_account_page.dart';
 import 'package:flutter_exam/features/home/pages/chefs_page.dart';
 import 'package:flutter_exam/features/home/pages/leave_review_page.dart';
 import 'package:flutter_exam/features/home/pages/reviews_page.dart';
+import 'package:flutter_exam/features/home/pages/settings_profile.dart';
 import 'package:flutter_exam/features/home/pages/trending_recipes.dart';
 import 'package:flutter_exam/features/home/pages/your_recipes.dart';
 import 'package:go_router/go_router.dart';
@@ -15,10 +17,13 @@ import '../../features/home/pages/community_item_page.dart';
 import '../../features/home/pages/community_page.dart';
 import '../../features/home/pages/cooking_level/allergy_meals.dart';
 import '../../features/home/pages/home_page.dart';
+import '../../features/home/pages/my_profile.dart';
 import '../../features/home/pages/onboarding/onboarding_main.dart';
+import '../../features/home/pages/onboarding/onboarding_page.dart';
+import '../../features/home/pages/post_cuisines.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/community',
+  initialLocation: '/onboarding',
   routes: [
     GoRoute(
       path: '/home',
@@ -31,12 +36,20 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const CommunityUsersPage(),
     ),
     GoRoute(
+      path: '/myProfile',
+      builder: (context, state) => const MyProfilePage(),
+    ),
+    GoRoute(
       name: 'community-item',
       path: '/community/:id',
       builder: (context, state) {
         final id = int.parse(state.pathParameters['id']!);
         return CommunityItemPage(recipeId: id);
       },
+    ),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingPage(),
     ),
     GoRoute(
       path: '/chef_account',
@@ -73,6 +86,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/trendingRecipes',
       builder: (context, state) => const TrendingRecipes(),
+    ),
+    GoRoute(
+      path: '/cuisinePost',
+      builder: (context, state) => const CreateRecipePage(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsPage(),
     ),
     GoRoute(
       path: '/getOTP',

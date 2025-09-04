@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exam/core/services/client.dart';
 import 'package:flutter_exam/data/repositories/auth_repository.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'core/routing/routers.dart' as AppRouter;
+import 'data/adapters/my_profile_adapter.dart';
 import 'features/home/managers/community_view_model.dart';
 import 'features/home/managers/view_model.dart';
 import 'features/home/pages/home_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dir = await getApplicationDocumentsDirectory();
+  Hive.init(dir.path);
+  Hive.registerAdapter(MyProfileModelAdapter()); // Ensure adapter is registered
+  final box = await Hive.openBox('my_profile');
+  final settingsbox = await Hive.openBox<Map>('settings');
+  print('Box opened: ${box.isOpen}');
+  await Hive.openBox('my_recipes'); // Open recipes box
   runApp(
     MultiProvider(
       providers: [
@@ -22,7 +33,6 @@ void main() {
   );
 }
 
-
 class MainAccountPage extends StatelessWidget {
   const MainAccountPage({super.key});
 
@@ -35,7 +45,7 @@ class MainAccountPage extends StatelessWidget {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         routerConfig: AppRouter.router,
-      )
+      ),
     );
   }
 }

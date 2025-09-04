@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_exam/data/models/my_recipes_model.dart';
 import '../../../core/services/client.dart';
 import '../../../data/models/allergy/allergy_page_model.dart';
-import '../../../data/models/appbar_bottom_model.dart';
 
 class AllergyPageViewModel extends ChangeNotifier {
   AllergyPageViewModel(){

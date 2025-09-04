@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../data/models/onboarding/onboarding_model.dart';
 
 class GetInspiredPage extends StatelessWidget {
