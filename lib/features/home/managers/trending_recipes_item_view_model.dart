@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exam/core/result/result.dart';
 import 'package:flutter_exam/data/models/trending_items_model.dart';
 import '../../../core/services/client.dart';
-import '../../../data/models/trending_page_model.dart';
 
 class TrendingRecipesItemVM extends ChangeNotifier {
-  TrendingRecipesItemVM(){
+  TrendingRecipesItemVM() {
     fetchTrendingRecipesItem();
   }
+
   String? error;
   bool isLoading = true;
   List<TrendingItems> trendingRecipesItemsList = [];
@@ -17,30 +18,36 @@ class TrendingRecipesItemVM extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await ApiClient().get<dynamic>('recipes/community/list');
+      final Result<dynamic> result =
+      await ApiClient().get('recipes/community/list');
 
       if (result.isSuccess) {
         final responseData = result.value;
         print('Response data: $responseData');
 
         if (responseData is List) {
-          trendingRecipesItemsList = responseData.map((e) => TrendingItems.fromJson(e as Map<String, dynamic>)).toList();
+          trendingRecipesItemsList = responseData
+              .map((e) => TrendingItems.fromJson(e as Map<String, dynamic>))
+              .toList();
         } else if (responseData is Map<String, dynamic>) {
-          trendingRecipesItemsList = [TrendingItems.fromJson(responseData)];
+          trendingRecipesItemsList = [
+            TrendingItems.fromJson(responseData)
+          ];
         } else {
-          throw Exception('Unexpected response format: $responseData');
+          error = 'Unexpected response format: ${responseData.runtimeType}';
+          trendingRecipesItemsList = [];
         }
       } else {
-        throw Exception('API Error: ${result.error}');
+        error = result.error?.toString() ?? 'Unknown API error';
+        trendingRecipesItemsList = [];
       }
-
-      isLoading = false;
-      notifyListeners();
     } catch (e) {
       error = 'Error: $e';
+      trendingRecipesItemsList = [];
+      print('Error fetching recipes: $e');
+    } finally {
       isLoading = false;
       notifyListeners();
-      print('Error fetching recipes: $e');
     }
   }
 }

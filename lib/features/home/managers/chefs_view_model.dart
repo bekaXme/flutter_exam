@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/client.dart';
+import '../../../core/result/result.dart';
 import '../../../data/models/chefs_model.dart';
 
 class ChefsViewModel extends ChangeNotifier {
@@ -17,7 +18,7 @@ class ChefsViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await ApiClient().get<dynamic>('top-chefs/list');
+      final Result<dynamic> result = await ApiClient().get('top-chefs/list');
 
       if (result.isSuccess) {
         final responseData = result.value;
@@ -26,14 +27,18 @@ class ChefsViewModel extends ChangeNotifier {
           chefsList = responseData
               .map((e) => ChefsModel.fromJson(e as Map<String, dynamic>))
               .toList();
+          error = null;
         } else {
-          throw Exception('Unexpected response format: $responseData');
+          error = 'Unexpected response format: ${responseData.runtimeType}';
+          chefsList = [];
         }
       } else {
-        throw Exception('API Error: ${result.error}');
+        error = result.error?.toString() ?? 'Unknown error';
+        chefsList = [];
       }
     } catch (e) {
       error = 'Failed to fetch chefs: $e';
+      chefsList = [];
       print('Error fetching chefs: $e');
     } finally {
       isLoading = false;

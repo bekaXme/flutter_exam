@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_exam/core/services/client.dart';
+import 'package:flutter_exam/core/result/result.dart';
 import '../../../data/models/review_model.dart';
 
 class ReviewsVM extends ChangeNotifier {
@@ -19,24 +20,35 @@ class ReviewsVM extends ChangeNotifier {
     print('Starting fetchMyReviews...');
     try {
       isMyReviewsLoading = true;
+      myReviewsError = null;
       notifyListeners();
 
       print('Calling API...');
-      final result = await ApiClient().get<List<dynamic>>('recipes/community/list'); // Updated to expect List
-      print('API Response: $result');
+      final Result<dynamic> result =
+      await ApiClient().get('recipes/community/list');
 
-      if (result.isSuccess && result.data != null) {
-        isMyReviewsLoading = false;
-        myReviewsError = null;
-        reviewerList = result.data!.map((json) => ReviewsModel.fromJson(json as Map<String, dynamic>)).toList();
-        print('Successfully parsed reviews: $reviewerList');
+      if (result.isSuccess) {
+        final responseData = result.value;
+
+        if (responseData is List) {
+          myReviewsList = responseData
+              .map((json) => ReviewsModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+          myReviewsError = null;
+          print('Successfully parsed reviews: $myReviewsList');
+        } else {
+          myReviewsError =
+          'Unexpected response format: ${responseData.runtimeType}';
+          myReviewsList = [];
+        }
       } else {
-        throw Exception('API call failed: ${result.error?.toString() ?? 'No data'}');
+        myReviewsError = result.error?.toString() ?? 'Unknown error';
+        myReviewsList = [];
       }
-
     } catch (e) {
       print('Error in fetchMyReviews: $e');
       myReviewsError = e.toString();
+      myReviewsList = [];
     } finally {
       isMyReviewsLoading = false;
       notifyListeners();

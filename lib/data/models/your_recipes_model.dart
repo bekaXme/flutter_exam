@@ -1,3 +1,7 @@
+import 'package:json_annotation/json_annotation.dart';
+part 'your_recipes_model.g.dart';
+
+@JsonSerializable()
 class YourRecipesModel {
   final String? productImage;
   final String? productName;
@@ -13,13 +17,19 @@ class YourRecipesModel {
     required this.timeRequired,
   });
 
-  factory YourRecipesModel.fromJson(Map<String, dynamic> json) {
-    return YourRecipesModel(
-      productImage: json['productImage'] as String? ?? '',
-      productName: json['productName'] as String? ?? '',
-      productDescription: json['productDescription'] as String? ?? '',
-      rating: (json['rating'] is double ? (json['rating'] as double).toInt() : json['rating'] as int?) ?? 0,
-      timeRequired: (json['timeRequired'] is double ? (json['timeRequired'] as double).toInt() : json['timeRequired'] as int?) ?? 0,
-    );
-  }
+  factory YourRecipesModel.fromJson(Map<String, dynamic> json) => _$YourRecipesModelFromJson(json);
+  Map<String, dynamic> toJson() => _$YourRecipesModelToJson(this);
+
+
+
+  //
+  // factory YourRecipesModel.fromJson(Map<String, dynamic> json) {
+  //   return YourRecipesModel(
+  //     productImage: json['productImage'] as String? ?? '',
+  //     productName: json['productName'] as String? ?? '',
+  //     productDescription: json['productDescription'] as String? ?? '',
+  //     rating: (json['rating'] is double ? (json['rating'] as double).toInt() : json['rating'] as int?) ?? 0,
+  //     timeRequired: (json['timeRequired'] is double ? (json['timeRequired'] as double).toInt() : json['timeRequired'] as int?) ?? 0,
+  //   );
+  // }
 }

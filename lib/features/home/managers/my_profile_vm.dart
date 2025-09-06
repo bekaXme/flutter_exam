@@ -18,7 +18,6 @@ class MyProfileVM extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      // Check if profile exists in Hive
       if (box.containsKey('profile')) {
         myProfile = box.get('profile') as MyProfileModel?;
         if (myProfile != null) {
@@ -29,25 +28,36 @@ class MyProfileVM extends ChangeNotifier {
         }
       }
 
-      // Fetch from API if not in Hive
-      var response = await ApiClient().get('auth/details/1');
-      if (response.statusCode != 200) {
-        throw Exception('Failed to load profile: ${response.statusCode}');
-      }
-
-      error = null;
-      final data = response.data;
-      myProfile = MyProfileModel.fromJson(data);
-
-      // Save to Hive
-      await box.put('profile', myProfile);
+      final result = await ApiClient().get('top-chefs/list', queryParameters: {'Page': 1, 'Limit': 1});
+      result.fold(
+        onError: (exception) {
+          error = exception.toString();
+          if (box.containsKey('profile')) {
+            myProfile = box.get('profile') as MyProfileModel?;
+          } else {
+            myProfile = null;
+          }
+        },
+        onSuccess: (data) {
+          error = null;
+          if (data is Map && data.containsKey('data') && data['data'] is List) {
+            final profileData = data['data'].firstWhere((item) => item is Map, orElse: () => {});
+            myProfile = MyProfileModel.fromJson(profileData);
+          } else if (data is List) {
+            final profileData = data.isNotEmpty ? data.first : {};
+            myProfile = MyProfileModel.fromJson(profileData);
+          } else {
+            myProfile = MyProfileModel.fromJson(data);
+          }
+          box.put('profile', myProfile);
+        },
+      );
     } catch (e) {
       error = e.toString();
-      // Fallback to Hive data if available
       if (box.containsKey('profile')) {
         myProfile = box.get('profile') as MyProfileModel?;
       } else {
-        myProfile = null; // Ensure null if no fallback
+        myProfile = null;
       }
     } finally {
       isLoading = false;

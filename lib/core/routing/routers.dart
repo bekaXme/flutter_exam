@@ -13,6 +13,7 @@ import '../../features/auth/pages/forgot_password_main.dart';
 import '../../features/auth/pages/gettingOTP.dart';
 import '../../features/auth/pages/log_in.dart';
 import '../../features/auth/pages/sign_up.dart';
+import '../../features/following/pages/follower_page.dart';
 import '../../features/home/pages/community_item_page.dart';
 import '../../features/home/pages/community_page.dart';
 import '../../features/home/pages/cooking_level/allergy_meals.dart';
@@ -23,12 +24,22 @@ import '../../features/home/pages/onboarding/onboarding_page.dart';
 import '../../features/home/pages/post_cuisines.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/onboarding',
+  initialLocation: '/myProfile',
   routes: [
     GoRoute(
       path: '/home',
       name: '/home',
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: '/follow_page',
+      name: '/follow_page',
+      builder: (context, state) => FollowerPage(),
+    ),
+    GoRoute(
+      path: '/onboardingStart',
+      name: '/onboardingStart',
+      builder: (context, state) => const GetInspiredPage(),
     ),
     GoRoute(
       path: '/community',
@@ -58,11 +69,11 @@ final GoRouter router = GoRouter(
         return ChefAccountPage();
       },
     ),
-    GoRoute(
-      path: '/yourRecipes',
-      name: '/yourRecipes',
-      builder: (context, state) => const YourRecipesPage(),
-    ),
+    // GoRoute(
+    //   path: '/yourRecipes',
+    //   name: '/yourRecipes',
+    //   builder: (context, state) => const YourRecipesPage(),
+    // ),
     GoRoute(
       path: '/leaveReview',
       name: '/leaveReview',

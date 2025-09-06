@@ -1,36 +1,37 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_exam/data/models/my_recipes_model.dart';
 import 'package:flutter_exam/data/models/recently_recipes_model.dart';
 import '../../../core/services/client.dart';
 
-class RecentRecipesVM extends ChangeNotifier{
+class RecentRecipesVM extends ChangeNotifier {
   RecentRecipesVM() {
     fetchRecentRecipes();
   }
+
   String? error;
   bool isLoading = true;
   List<RecentlyRecipesModel> RecentRecipesList = [];
 
   Future<void> fetchRecentRecipes() async {
-    isLoading = true; // start loading
+    isLoading = true;
     notifyListeners();
 
     try {
-      var response = await ApiClient().get('recipes/list?Limit=2');
-      if (response != 200) {
-        throw Exception('Failed to load recent recipes');
-      } else {
-        error = null;
-        List data = response.data;
-        RecentRecipesList = data
-            .map((e) => RecentlyRecipesModel.fromJson(e))
-            .toList();
-      }
+      final result = await ApiClient().get('recipes/list', queryParameters: {'Limit': 2});
+      result.fold(
+        onError: (exception) {
+          error = exception.toString();
+        },
+        onSuccess: (data) {
+          error = null;
+          List<dynamic> listData = data is List ? data : (data['data'] as List? ?? []);
+          RecentRecipesList = listData.map((e) => RecentlyRecipesModel.fromJson(e)).toList();
+        },
+      );
     } catch (e) {
       error = e.toString();
     }
 
-    isLoading = false; // finished loading
+    isLoading = false;
     notifyListeners();
   }
 }

@@ -16,28 +16,35 @@ class ChefAccountVM extends ChangeNotifier {
   Future<void> fetchChefAccount() async {
     try {
       dev.log('Fetching chef account data...');
-      Result<List<dynamic>> result = await ApiClient().get<List<dynamic>>('top-chefs/list');
+      final Result<dynamic> result = await ApiClient().get('top-chefs/list');
       dev.log('API Result: $result');
 
       if (result.isSuccess) {
-        if (result.value is List) {
-          chefAccountList = (result.value as List)
+        final data = result.value;
+        if (data is List) {
+          chefAccountList = data
               .map((json) => ChefAccountModel.fromJson(json))
-              .toList();
+              .toList()
+              .cast<ChefAccountModel>();
           dev.log('Parsed chefs: $chefAccountList');
+          _error = null;
         } else {
           _error = 'Invalid data format';
+          chefAccountList = [];
         }
       } else {
         _error = result.error?.toString() ?? 'Unknown error';
+        chefAccountList = [];
       }
-      isLoading = false;
-      notifyListeners();
     } catch (e) {
-      isLoading = false;
       _error = 'Error: $e';
+      chefAccountList = [];
       dev.log('Error fetching data: $e');
+    } finally {
+      isLoading = false;
       notifyListeners();
     }
   }
+
+  String? get error => _error;
 }
