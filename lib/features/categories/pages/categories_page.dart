@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import '../../colors.dart';
-import '../bottomPages/app_bar_bottom_pages.dart';
-import '../home/managers/appbar_bottom_view_model.dart';
-import '../home/managers/trend_recipes_view_model.dart';
+import '../../../colors.dart';
+import '../../bottomPages/pages/app_bar_bottom_pages.dart';
+import '../../bottomPages/managers/appbar_bottom_view_model.dart';
+import '../../home/pages/search_delegate.dart';
+import '../../trend-recipes/managers/trend_recipes_view_model.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -35,14 +35,21 @@ class CategoriesPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              context.go('/notifications');
+              context.go('/notification_main');
             },
             icon: const Icon(Icons.notification_add_outlined,
                 color: Colors.white),
           ),
           IconButton(
             onPressed: () {
-              context.go('/search');
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                ),
+                builder: (context) => const CustomSearchSheet(),
+              );
             },
             icon: SvgPicture.asset('assets/icons/search.svg'),
           ),
@@ -141,7 +148,7 @@ class CategoriesPage extends StatelessWidget {
                 icon: SvgPicture.asset('assets/icons/categories.svg'),
               ),
               IconButton(
-                onPressed: () => context.go('/profile'),
+                onPressed: () => context.go('/myProfile'),
                 icon: SvgPicture.asset('assets/icons/profile.svg'),
               ),
             ],

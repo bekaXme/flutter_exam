@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../../core/services/client.dart';
 import '../../../core/result/result.dart';
 import '../../../data/models/chefs_model.dart';
+import '../../../data/repositories/chefs_repository.dart';
+import '../../../core/services/client.dart';
 
 class ChefsViewModel extends ChangeNotifier {
-  ChefsViewModel() {
+  final ChefsRepository _repository;
+
+  ChefsViewModel({ChefsRepository? repository})
+      : _repository = repository ?? ChefsRepository(client: ApiClient()) {
     fetchChefs();
   }
 
@@ -18,24 +22,18 @@ class ChefsViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final Result<dynamic> result = await ApiClient().get('top-chefs/list');
+      final Result<List<ChefsModel>> result = await _repository.fetchChefs();
 
-      if (result.isSuccess) {
-        final responseData = result.value;
-
-        if (responseData is List) {
-          chefsList = responseData
-              .map((e) => ChefsModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-          error = null;
-        } else {
-          error = 'Unexpected response format: ${responseData.runtimeType}';
+      result.fold(
+        onError: (err) {
+          error = err.toString();
           chefsList = [];
-        }
-      } else {
-        error = result.error?.toString() ?? 'Unknown error';
-        chefsList = [];
-      }
+        },
+        onSuccess: (data) {
+          chefsList = data;
+          error = null;
+        },
+      );
     } catch (e) {
       error = 'Failed to fetch chefs: $e';
       chefsList = [];

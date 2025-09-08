@@ -1,10 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter_exam/colors.dart';
-import '../../../data/models/auth_model.dart';
-import '../../home/managers/view_model.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -37,70 +36,48 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
-  void _signUp() {
-    if (_formKey.currentState!.validate()) {
-      final authModel = AuthModel(
-        fullName: _fullNameController.text,
-        email: _emailController.text,
-        mobileNumber: _mobileNumberController.text,
-        dateOfBirth: _dobController.text,
-        password: _passwordController.text,
-      );
+  Future<void> _saveUserToHive() async {
+    final box = await Hive.openBox('user_account');
+    await box.put('fullName', _fullNameController.text);
+    await box.put('email', _emailController.text);
+    await box.put('mobileNumber', _mobileNumberController.text);
+    await box.put('dob', _dobController.text);
+    await box.put('password', _passwordController.text);
+  }
 
-      Provider.of<AuthViewModel>(context, listen: false).registerEvent(
-        authModel: authModel,
-        onSuccess: () {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: const Text("🎉 Sign Up Successful"),
-              content: const Text("Welcome! Your account has been created."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // close dialog
-                    context.goNamed('community'); // go to community page
-                  },
-                  child: const Text("Continue"),
-                ),
-              ],
+  void _signUp() async {
+    if (_formKey.currentState!.validate()) {
+      await _saveUserToHive();
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text("🎉 Sign Up Successful"),
+          content: const Text("Welcome! Your account has been created."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.go('/home');
+              },
+              child: const Text("Continue"),
             ),
-          );
-        },
-        onError: (error) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: const Text("❌ Sign Up Failed"),
-              content: Text(error),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
-                ),
-              ],
-            ),
-          );
-        },
+          ],
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context);
-
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.backgroundColor,
-        elevation: 0,
         centerTitle: true,
         title: const Text(
           'Sign Up',
@@ -119,150 +96,57 @@ class _SignUpState extends State<SignUp> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 30),
-
-              // Full Name
-              const Text('Full Name',
-                  style: TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 10),
-              _buildInputField(
-                controller: _fullNameController,
-                hint: 'John Doe',
-                validator: (v) =>
-                v == null || v.isEmpty ? 'Please enter your full name' : null,
-              ),
-
+              _buildLabel("Full Name"),
+              _buildInputField(controller: _fullNameController, hint: "John Doe"),
               const SizedBox(height: 20),
 
-              // Email
-              const Text('Email',
-                  style: TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 10),
+              _buildLabel("Email"),
               _buildInputField(
                 controller: _emailController,
-                hint: 'example@example.com',
-                keyboard: TextInputType.emailAddress,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Please enter your email';
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
+                hint: "example@email.com",
+                validator: (v) => v!.contains("@") ? null : "Enter valid email",
               ),
-
               const SizedBox(height: 20),
 
-              // Mobile
-              const Text('Mobile Number',
-                  style: TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 10),
+              _buildLabel("Mobile Number"),
               _buildInputField(
                 controller: _mobileNumberController,
-                hint: '+998 99 999 99 99',
-                keyboard: TextInputType.phone,
-                validator: (v) => v == null || v.isEmpty
-                    ? 'Please enter your mobile number'
-                    : null,
+                hint: "+998 99 999 99 99",
               ),
-
               const SizedBox(height: 20),
 
-              // DOB
-              const Text('Date of Birth',
-                  style: TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 10),
-              _buildInputField(
-                controller: _dobController,
-                hint: 'DD.MM.YYYY',
-                keyboard: TextInputType.datetime,
-                validator: (v) => v == null || v.isEmpty
-                    ? 'Please enter your date of birth'
-                    : null,
-              ),
-
+              _buildLabel("Date of Birth"),
+              _buildInputField(controller: _dobController, hint: "DD.MM.YYYY"),
               const SizedBox(height: 20),
 
-              // Password
-              const Text('Password',
-                  style: TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 10),
+              _buildLabel("Password"),
               _buildInputField(
                 controller: _passwordController,
-                hint: 'Password',
+                hint: "Password",
                 isPassword: true,
                 isVisible: _isPasswordVisible,
                 toggleVisibility: () =>
                     setState(() => _isPasswordVisible = !_isPasswordVisible),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Please enter your password';
-                  if (v.length < 6) return 'Password must be at least 6 characters';
-                  return null;
-                },
               ),
-
               const SizedBox(height: 20),
 
-              // Confirm Password
-              const Text('Confirm Password',
-                  style: TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 10),
+              _buildLabel("Confirm Password"),
               _buildInputField(
                 controller: _confirmPasswordController,
-                hint: 'Confirm Password',
+                hint: "Confirm Password",
                 isPassword: true,
                 isVisible: _isConfirmPasswordVisible,
                 toggleVisibility: () => setState(
                         () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (v != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
+                validator: (v) =>
+                v != _passwordController.text ? "Passwords don’t match" : null,
               ),
 
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
 
-              // Terms
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                    text: const TextSpan(
-                      text: 'By continuing, you agree to',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: ' Terms of Use and Privacy Policy.',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Sign Up Button
               Center(
                 child: ElevatedButton(
-                  onPressed: (){
-                    context.go('/home');
-                  },
+                  onPressed: _signUp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.pink,
                     foregroundColor: Colors.white,
@@ -270,35 +154,27 @@ class _SignUpState extends State<SignUp> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 100,
-                      vertical: 12,
-                    ),
+                        horizontal: 100, vertical: 12),
                   ),
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  child: const Text("Sign Up",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
-
               const SizedBox(height: 20),
 
-              // Already have account
               Center(
                 child: RichText(
-                  textAlign: TextAlign.center,
                   text: TextSpan(
                     text: "Already have an account? ",
                     style: const TextStyle(color: Colors.white),
                     children: [
                       TextSpan(
-                        text: 'Log In',
+                        text: "Log In",
                         style: const TextStyle(
-                          color: Colors.pinkAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            color: Colors.pinkAccent,
+                            fontWeight: FontWeight.bold),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () => context.goNamed('/logIn'),
+                          ..onTap = () => context.go('/login'),
                       ),
                     ],
                   ),
@@ -310,6 +186,9 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
+
+  Widget _buildLabel(String text) => Text(text,
+      style: const TextStyle(color: Colors.white, fontSize: 15));
 
   Widget _buildInputField({
     required TextEditingController controller,
@@ -330,6 +209,7 @@ class _SignUpState extends State<SignUp> {
         obscureText: isPassword && !isVisible,
         keyboardType: keyboard,
         style: const TextStyle(color: Colors.black),
+        validator: validator,
         decoration: InputDecoration(
           hintText: hint,
           border: InputBorder.none,
@@ -337,14 +217,12 @@ class _SignUpState extends State<SignUp> {
           suffixIcon: isPassword
               ? IconButton(
             icon: Icon(
-              isVisible ? Icons.visibility : Icons.visibility_off,
-              color: Colors.grey[800],
-            ),
+                isVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey[800]),
             onPressed: toggleVisibility,
           )
               : null,
         ),
-        validator: validator,
       ),
     );
   }

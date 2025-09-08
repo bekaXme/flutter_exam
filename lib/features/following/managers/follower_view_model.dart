@@ -1,37 +1,61 @@
-import 'package:flutter_exam/core/result/result.dart';
+import 'package:flutter/material.dart';
+import '../../../core/result/result.dart';
 import '../../../core/services/client.dart';
 import '../../../data/models/following/followe_model.dart';
+import '../../../data/repositories/follower_repository.dart';
 
-class FollowerViewModel {
-  final ApiClient _apiClient = ApiClient();
+class FollowerViewModel extends ChangeNotifier {
+  final FollowerRepository _repository;
+
+  FollowerViewModel({FollowerRepository? repository})
+      : _repository = repository ?? FollowerRepository(client: ApiClient()) {
+    fetchFollowers();
+  }
+
   List<Follower> followers = [];
+  bool isLoading = false;
+  String? error;
 
   Future<void> fetchFollowers() async {
-    final result = await _apiClient.get('auth/followers');
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    final result = await _repository.fetchFollowers();
+
     result.fold(
-      onError: (error) => print('Error fetching followers: $error'),
-      onSuccess: (data) => followers = (data as List).map((json) => Follower.fromJson(json)).toList(),
+      onError: (err) {
+        error = err.toString();
+        followers = [];
+      },
+      onSuccess: (data) {
+        followers = data;
+        error = null;
+      },
     );
+
+    isLoading = false;
+    notifyListeners();
   }
 
   Future<void> follow(int id) async {
-    final result = await _apiClient.post('auth/follow/$id', data: {'id': id});
-    _handleResult(result);
+    final result = await _repository.follow(id);
+    _handleActionResult(result);
   }
 
   Future<void> unfollow(int id) async {
-    final result = await _apiClient.post('auth/unfollow/$id', data: {'id': id});
-    _handleResult(result);
+    final result = await _repository.unfollow(id);
+    _handleActionResult(result);
   }
 
   Future<void> removeFollower(int id) async {
-    final result = await _apiClient.post('auth/remove-follower/$id', data: {'id': id});
-    _handleResult(result);
+    final result = await _repository.removeFollower(id);
+    _handleActionResult(result);
   }
 
-  void _handleResult(Result<dynamic> result) {
+  void _handleActionResult(Result<void> result) {
     result.fold(
-      onError: (error) => print('Operation failed: $error'),
+      onError: (err) => error = err.toString(),
       onSuccess: (_) => fetchFollowers(), // Refresh list on success
     );
   }

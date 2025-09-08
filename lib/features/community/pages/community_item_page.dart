@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_exam/colors.dart';
+
 import '../managers/community_view_model.dart';
 
 class CommunityItemPage extends StatelessWidget {

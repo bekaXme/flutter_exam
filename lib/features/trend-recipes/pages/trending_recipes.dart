@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import '../../../colors.dart';
+import '../../home/widgets/rich_text.dart';
 import '../managers/trend_recipes_view_model.dart';
-import '../widgets/rich_text.dart';
 
 class TrendingRecipes extends StatefulWidget {
   TrendingRecipes({super.key});

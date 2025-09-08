@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
-import 'package:flutter_exam/features/home/managers/trending_page_view_model.dart';
+import 'package:flutter_exam/features/trend-recipes/managers/trending_page_view_model.dart';
 import 'package:flutter_exam/features/home/pages/search_delegate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
-import '../../bottomPages/app_bar_bottom_pages.dart';
-import '../managers/appbar_bottom_view_model.dart';
+import '../../bottomPages/pages/app_bar_bottom_pages.dart';
+import '../../chefs/managers/top_chefs_view_model.dart';
+import '../../trend-recipes/managers/trend_recipes_view_model.dart';
+import '../../bottomPages/managers/appbar_bottom_view_model.dart';
 import '../managers/recent_recipes_view_model.dart';
-import '../managers/trend_recipes_view_model.dart';
-import '../managers/top_chefs_view_model.dart';
-import '../managers/my_recipes_view_model.dart';
+import '../../profile/managers/my_recipes_view_model.dart';
 import '../widgets/home_page_widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,6 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final box = Hive.box('user_account');
   bool isHeartRed = false;
   int _selectedIndex = 0;
 
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hi! Dianne',
+                'Hi! ${box.get('fullName')}',
                 style: TextStyle(
                   color: AppColors.pinkIconBack,
                   fontWeight: FontWeight.w400,
@@ -276,6 +277,7 @@ class _HomePageState extends State<HomePage> {
                           child: GestureDetector(
                             onTap: toggleHeartColor,
                             child: Container(
+                              padding: EdgeInsets.all(6.r),
                               width: 28.w,
                               height: 28.h,
                               decoration: BoxDecoration(
@@ -732,9 +734,9 @@ class _HomePageState extends State<HomePage> {
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                               ),
-                          itemCount: vm.RecentRecipesList.length,
+                          itemCount: vm.recentRecipesList.length,
                           itemBuilder: (context, index) {
-                            final recipe = vm.RecentRecipesList[index];
+                            final recipe = vm.recentRecipesList[index];
                             return GestureDetector(
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(

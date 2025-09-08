@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import '../managers/my_profile_vm.dart';
-import '../managers/recent_recipes_view_model.dart';
+import '../../home/managers/recent_recipes_view_model.dart';
 
 class MyProfilePage extends StatelessWidget {
   const MyProfilePage({super.key});
@@ -43,7 +43,7 @@ class MyProfilePage extends StatelessWidget {
           }
 
           final profile = profileVM.myProfile!;
-          final recipes = recipesVM.RecentRecipesList;
+          final recipes = recipesVM.recentRecipesList;
 
           return Scaffold(
             extendBody: true,
@@ -102,7 +102,9 @@ class MyProfilePage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(16.r),
                               ),
                               child: IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.go('/cuisinePost');
+                                },
                                 icon: Icon(
                                   Icons.add_outlined,
                                   color: AppColors.pinkIconBack,
@@ -117,7 +119,9 @@ class MyProfilePage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(16.r),
                               ),
                               child: IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.go('/settings');
+                                },
                                 icon: Icon(
                                   Icons.drag_indicator_outlined,
                                   color: AppColors.pinkIconBack,
@@ -142,7 +146,7 @@ class MyProfilePage extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          context.go('/follow_page');
+                          context.go('/editProfile');
                         },
                         child: Text(
                           "Edit Profile",
@@ -156,7 +160,9 @@ class MyProfilePage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.go('/shareProfile');
+                        },
                         child: Text(
                           "Share Profile",
                           style: TextStyle(color:Color(0xFFEC888D),fontSize: 14.sp),

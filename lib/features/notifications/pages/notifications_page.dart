@@ -88,19 +88,27 @@ class NotificationsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/home');
+                },
                 icon: SvgPicture.asset('assets/icons/home.svg'),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/community');
+                },
                 icon: SvgPicture.asset('assets/icons/community.svg'),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/categoriesPage');
+                },
                 icon: SvgPicture.asset('assets/icons/categories.svg'),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/myProfile');
+                },
                 icon: SvgPicture.asset('assets/icons/profile.svg'),
               ),
             ],

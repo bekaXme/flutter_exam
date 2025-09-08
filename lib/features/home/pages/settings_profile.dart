@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 
 // MAIN SETTINGS PAGE
@@ -41,11 +42,12 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: AppColors.backgroundColor,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context); // ✅ fixed
+            context.go('/myProfile');
           },
           icon: SvgPicture.asset('assets/icons/back-arrow.svg'),
         ),
         title: const Text('Settings', style: TextStyle(color: Colors.pink)),
+        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -90,19 +92,27 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/home');
+                },
                 icon: SvgPicture.asset('assets/icons/home.svg'),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/community');
+                },
                 icon: SvgPicture.asset('assets/icons/community.svg'),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/categoriesPage');
+                },
                 icon: SvgPicture.asset('assets/icons/categories.svg'),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.go('/myProfile');
+                },
                 icon: SvgPicture.asset('assets/icons/profile.svg'),
               ),
             ],
@@ -112,7 +122,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  /// Reusable widget for settings items
   Widget buildSettingsItem(String title, IconData iconData, int id) {
     return ListTile(
       leading: Container(
@@ -120,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
         height: 40,
         decoration: BoxDecoration(
           color: Colors.pinkAccent,
-          borderRadius: BorderRadius.circular(30), // ✅ fixed
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Icon(iconData, color: Colors.white),
       ),

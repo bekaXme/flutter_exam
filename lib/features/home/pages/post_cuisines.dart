@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exam/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import '../managers/post_cuisines_vm.dart';
 
@@ -16,27 +18,214 @@ class CreateRecipePage extends StatelessWidget {
         builder: (context, vm, _) {
           return Scaffold(
             extendBody: true,
-            backgroundColor: const Color(0xFF1B0C0C), // dark background
+            backgroundColor: const Color(0xFF1B0C0C),
+            // dark background
             appBar: AppBar(
               backgroundColor: const Color(0xFF1B0C0C),
+              leading: Container(
+                width: 30.w,
+                height: 30.h,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    context.go('/myProfile');
+                  },
+                  icon: SvgPicture.asset('assets/icons/back-arrow.svg'),
+                ),
+              ),
               elevation: 0,
               title: const Text(
                 "Create Recipe",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.pinkIconBack),
               ),
               centerTitle: true,
-              actions: [
-                TextButton(
-                  onPressed: () {}, // publish logic
-                  child: const Text("Publish",
-                      style: TextStyle(color: Colors.pinkAccent)),
+              bottom: PreferredSize(
+                preferredSize: Size(double.infinity, 40),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      width: 141.w,
+                      height: 26.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.pinkIcon,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Container(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Publish Recipes',
+                                    style: TextStyle(
+                                      color: AppColors.pinkIconBack,
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Are you sure you want to publish recipe?',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Container(
+                                        width: 141.w,
+                                        height: 26.h,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.pinkIcon,
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text(
+                                            "Cancel",
+                                            style: TextStyle(
+                                              color: Colors.pinkAccent,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 141.w,
+                                        height: 26.h,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.pinkIconBack,
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text(
+                                            "Publish",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }, // publish logic
+                        child: const Text(
+                          "Publish",
+                          style: TextStyle(color: Colors.pinkAccent),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 141.w,
+                      height: 26.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.pinkIcon,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Container(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Delete Recipes',
+                                    style: TextStyle(
+                                      color: AppColors.pinkIconBack,
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Are you sure you want to delete recipe?',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Container(
+                                        width: 141.w,
+                                        height: 26.h,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.pinkIcon,
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text(
+                                            "Cancel",
+                                            style: TextStyle(
+                                              color: Colors.pinkAccent,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 141.w,
+                                        height: 26.h,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.pinkIconBack,
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text(
+                                            "Delete",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Delete",
+                          style: TextStyle(color: Colors.pinkAccent),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {}, // draft logic
-                  child: const Text("Draft",
-                      style: TextStyle(color: Colors.pinkAccent)),
-                ),
-              ],
+              ),
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -51,8 +240,11 @@ class CreateRecipePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Center(
-                      child: Icon(Icons.play_circle_fill,
-                          size: 64, color: Colors.white),
+                      child: Icon(
+                        Icons.play_circle_fill,
+                        size: 64,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -83,13 +275,17 @@ class CreateRecipePage extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Ingredients
-                  const Text("Ingredients",
-                      style: TextStyle(color: Colors.pinkAccent)),
+                  const Text(
+                    "Ingredients",
+                    style: TextStyle(color: Colors.pinkAccent),
+                  ),
                   const SizedBox(height: 8),
                   const SizedBox(height: 20),
                   // Instructions
-                  const Text("Instructions",
-                      style: TextStyle(color: Colors.pinkAccent)),
+                  const Text(
+                    "Instructions",
+                    style: TextStyle(color: Colors.pinkAccent),
+                  ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -100,10 +296,7 @@ class CreateRecipePage extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent, // start fully transparent
-                    Colors.black.withOpacity(0.4), // fade to darker
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
                 ),
                 borderRadius: BorderRadius.circular(30.r),
               ),
@@ -111,18 +304,36 @@ class CreateRecipePage extends StatelessWidget {
                 width: 280.w,
                 height: 60.h,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFD5D69), // pink background
+                  color: const Color(0xFFFD5D69),
                   borderRadius: BorderRadius.circular(30.r),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    IconButton(onPressed: (){}, icon: SvgPicture.asset('assets/icons/home.svg')),
-                    IconButton(onPressed: (){}, icon: SvgPicture.asset('assets/icons/community.svg')),
-                    IconButton(onPressed: (){}, icon: SvgPicture.asset('assets/icons/categories.svg')),
-                    IconButton(onPressed: (){
-                      context.go('/settings');
-                    }, icon: SvgPicture.asset('assets/icons/profile.svg')),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/home');
+                      },
+                      icon: SvgPicture.asset('assets/icons/home.svg'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/community');
+                      },
+                      icon: SvgPicture.asset('assets/icons/community.svg'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/categoriesPage');
+                      },
+                      icon: SvgPicture.asset('assets/icons/categories.svg'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/myProfile');
+                      },
+                      icon: SvgPicture.asset('assets/icons/profile.svg'),
+                    ),
                   ],
                 ),
               ),

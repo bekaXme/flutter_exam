@@ -1,9 +1,14 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import '../../../core/result/result.dart';
 import '../../../core/services/client.dart';
 import '../../../data/models/allergy/allergy_page_model.dart';
+import '../../../data/repositories/allergy_repository.dart';
 
 class AllergyPageViewModel extends ChangeNotifier {
-  AllergyPageViewModel() {
+  final AllergyRepository _repository;
+
+  AllergyPageViewModel({AllergyRepository? repository})
+      : _repository = repository ?? AllergyRepository(client: ApiClient()) {
     fetchAllergyModel();
   }
 
@@ -17,19 +22,29 @@ class AllergyPageViewModel extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      final result = await ApiClient().get<List<dynamic>>('allergic/list');
+      final Result<List<AllergyModel>> result =
+      await _repository.fetchAllergies();
 
-      if (result.isSuccess) {
-        final data = result.data ?? [];
-        allergy = data.map((e) => AllergyModel.fromJson(e as Map<String, dynamic>)).toList();
-      } else {
-        error = result.error?.toString() ?? 'Failed to load allergies';
-      }
+      result.fold(
+        onError: (err) {
+          error = err.toString();
+          allergy = [];
+        },
+        onSuccess: (data) {
+          allergy = data;
+          error = null;
+        },
+      );
     } catch (e) {
       error = 'Failed to load allergies: $e';
+      allergy = [];
     } finally {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  void retryFetch() {
+    fetchAllergyModel();
   }
 }
