@@ -1,35 +1,31 @@
-import 'package:json_annotation/json_annotation.dart';
-part 'your_recipes_model.g.dart';
+import 'package:flutter/cupertino.dart';
 
-@JsonSerializable()
 class YourRecipesModel {
+  final int id; // Added for navigation
   final String? productImage;
   final String? productName;
-  final String? productDescription;
-  final int rating;
-  final int timeRequired;
+  final String? description;
+  final int? timeRequired;
+  final double? rating;
 
   YourRecipesModel({
+    required this.id,
     this.productImage,
     this.productName,
-    this.productDescription,
-    required this.rating,
-    required this.timeRequired,
+    this.description,
+    this.timeRequired,
+    this.rating,
   });
 
-  factory YourRecipesModel.fromJson(Map<String, dynamic> json) => _$YourRecipesModelFromJson(json);
-  Map<String, dynamic> toJson() => _$YourRecipesModelToJson(this);
-
-
-
-  //
-  // factory YourRecipesModel.fromJson(Map<String, dynamic> json) {
-  //   return YourRecipesModel(
-  //     productImage: json['productImage'] as String? ?? '',
-  //     productName: json['productName'] as String? ?? '',
-  //     productDescription: json['productDescription'] as String? ?? '',
-  //     rating: (json['rating'] is double ? (json['rating'] as double).toInt() : json['rating'] as int?) ?? 0,
-  //     timeRequired: (json['timeRequired'] is double ? (json['timeRequired'] as double).toInt() : json['timeRequired'] as int?) ?? 0,
-  //   );
-  // }
+  factory YourRecipesModel.fromJson(Map<String, dynamic> json) {
+    print('Parsing JSON: $json'); // Debug JSON parsing
+    return YourRecipesModel(
+      id: json['id'] ?? 0, // Ensure API provides an 'id'
+      productImage: json['photo'] ?? json['productImage'] ?? '',
+      productName: json['title'] ?? json['productName'] ?? '',
+      description: json['description'] ?? '',
+      timeRequired: (json['timeRequired'] as num?)?.toInt() ?? 0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
 }

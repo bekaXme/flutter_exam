@@ -14,15 +14,41 @@ class AllergyPageView extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.backgroundColor,
+          elevation: 0,
           leading: IconButton(
-            onPressed: () => context.goNamed('definition'),
-            icon: const Icon(Icons.arrow_back, color: AppColors.pinkIcon),
+            onPressed: () => Navigator.canPop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
           title: const Text(
             'Allergies',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
           ),
           centerTitle: true,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(12),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              alignment: Alignment.centerRight,
+              child: FractionallySizedBox(
+                widthFactor: 0.35,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.pinkIconBack,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
         backgroundColor: AppColors.backgroundColor,
         body: SafeArea(
@@ -151,7 +177,7 @@ class AllergyPageView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () => context.goNamed('community'),
+                    onPressed: () => context.goNamed('/logIn'),
                     child: const Text(
                       'Continue',
                       style: TextStyle(color: Colors.white),

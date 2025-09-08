@@ -6,24 +6,30 @@ class TrendRecipesVM extends ChangeNotifier {
   TrendRecipesVM() {
     fetchTrendRecipes();
   }
+
   String? error;
-  bool isLoading = true;
+  bool isLoading = false;
   List<TrendRecipesModel> trendRecipes = [];
 
   Future<void> fetchTrendRecipes() async {
-    isLoading = true;
-    notifyListeners();
-    var response = await ApiClient().get('recipes/community/list');
-    if (response != 200) {
-      throw Exception('Failed to load trend recipes');
-    } else {
+    try {
+      isLoading = true;
       error = null;
-      // Wrap the single object in a list
-      var data = [response.data]; // Assuming response.data is a single object
-      trendRecipes = data.map((e) => TrendRecipesModel.fromJson(e)).toList();
+      notifyListeners();
+
+      final result = await ApiClient().get<List<dynamic>>('recipes/community/list');
+
+      if (result.isSuccess) {
+        final data = result.data ?? [];
+        trendRecipes = data.map((e) => TrendRecipesModel.fromJson(e as Map<String, dynamic>)).toList();
+      } else {
+        error = result.error?.toString() ?? 'Failed to load trend recipes';
+      }
+    } catch (e) {
+      error = 'Failed to load trend recipes: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-    isLoading = false;
-    notifyListeners();
   }
 }
-

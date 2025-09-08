@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
+import 'package:flutter_svg/svg.dart';
 import '../managers/follower_view_model.dart';
 
 class FollowerPage extends StatefulWidget {
@@ -21,6 +22,10 @@ class _FollowerPageState extends State<FollowerPage> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {},
+          icon: SvgPicture.asset('assets/icons/back-arrow.svg'),
+        ),
         backgroundColor: AppColors.backgroundColor,
         title: Text('Followers'),
       ),

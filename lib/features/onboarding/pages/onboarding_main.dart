@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../colors.dart';
+import '../managers/onboarding_improve_view_model.dart';
 import '../managers/onboarding_view_model.dart';
 
 class GetInspiredPage extends StatelessWidget {
@@ -10,7 +11,7 @@ class GetInspiredPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => OnBoardingMainViewModel(),
+      create: (_) => OnBoardingImproveViewModel(),
       builder: (context, child) {
         return Consumer<OnBoardingMainViewModel>(
           builder: (context, vm, child) {
@@ -95,9 +96,14 @@ class GetInspiredPage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(25),
                                 ),
                               ),
-                              child: const Text(
+                              child:TextButton(
+                                onPressed: (){
+                                  context.goNamed('onboarding_second');
+                                },
+                                child: Text(
                                 "Continue",
                                 style: TextStyle(color: Colors.white),
+                                )
                               ),
                             ),
                           ),

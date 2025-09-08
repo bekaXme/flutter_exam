@@ -10,10 +10,6 @@ class ReviewsVM extends ChangeNotifier {
 
   bool isMyReviewsLoading = true;
   String? myReviewsError;
-  List<ReviewsModel> myReviewsList = [];
-
-  bool isReviewerLoading = true;
-  String? reviewerError;
   List<ReviewsModel> reviewerList = [];
 
   Future<void> fetchMyReviews() async {
@@ -24,31 +20,28 @@ class ReviewsVM extends ChangeNotifier {
       notifyListeners();
 
       print('Calling API...');
-      final Result<dynamic> result =
-      await ApiClient().get('recipes/community/list');
+      final Result<dynamic> result = await ApiClient().get('reviews/list');
 
       if (result.isSuccess) {
         final responseData = result.value;
-
-        if (responseData is List) {
-          myReviewsList = responseData
+        if (responseData is Map<String, dynamic> && responseData['data'] is List) {
+          reviewerList = (responseData['data'] as List)
               .map((json) => ReviewsModel.fromJson(json as Map<String, dynamic>))
               .toList();
           myReviewsError = null;
-          print('Successfully parsed reviews: $myReviewsList');
+          print('Successfully parsed reviews: $reviewerList');
         } else {
-          myReviewsError =
-          'Unexpected response format: ${responseData.runtimeType}';
-          myReviewsList = [];
+          myReviewsError = 'Unexpected response format: ${responseData.runtimeType}';
+          reviewerList = [];
         }
       } else {
         myReviewsError = result.error?.toString() ?? 'Unknown error';
-        myReviewsList = [];
+        reviewerList = [];
       }
     } catch (e) {
       print('Error in fetchMyReviews: $e');
-      myReviewsError = e.toString();
-      myReviewsList = [];
+      myReviewsError = 'Failed to fetch reviews: $e';
+      reviewerList = [];
     } finally {
       isMyReviewsLoading = false;
       notifyListeners();

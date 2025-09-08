@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import '../managers/my_profile_vm.dart';
@@ -45,6 +46,7 @@ class MyProfilePage extends StatelessWidget {
           final recipes = recipesVM.RecentRecipesList;
 
           return Scaffold(
+            extendBody: true,
             backgroundColor: const Color(0xFF2C1A1A),
             body: SafeArea(
               child: Column(
@@ -139,7 +141,9 @@ class MyProfilePage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.go('/follow_page');
+                        },
                         child: Text(
                           "Edit Profile",
                           style: TextStyle(color:Color(0xFFEC888D),fontSize: 14.sp),
@@ -318,19 +322,27 @@ class MyProfilePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.go('/home');
+                      },
                       icon: SvgPicture.asset('assets/icons/home.svg'),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.go('/community');
+                      },
                       icon: SvgPicture.asset('assets/icons/community.svg'),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.go('/categoriesPage');
+                      },
                       icon: SvgPicture.asset('assets/icons/categories.svg'),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.go('/myProfile');
+                      },
                       icon: SvgPicture.asset('assets/icons/profile.svg'),
                     ),
                   ],

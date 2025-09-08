@@ -15,7 +15,7 @@ class OnBoardingImproveViewModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    final result = await ApiClient().get("onboarding/skills");
+    final result = await ApiClient().get("onboarding/list");
 
     result.fold(
       onError: (e) {

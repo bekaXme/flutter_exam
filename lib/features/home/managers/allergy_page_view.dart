@@ -3,26 +3,30 @@ import '../../../core/services/client.dart';
 import '../../../data/models/allergy/allergy_page_model.dart';
 
 class AllergyPageViewModel extends ChangeNotifier {
-  AllergyPageViewModel(){
+  AllergyPageViewModel() {
     fetchAllergyModel();
   }
+
   String? error;
-  bool isLoading = true;
+  bool isLoading = false;
   List<AllergyModel> allergy = [];
 
   Future<void> fetchAllergyModel() async {
     try {
       isLoading = true;
-      notifyListeners();
-      var response = await ApiClient().get('categories/list');
-      if (response != 200) {
-        throw Exception('Failed to load categories');
-      }
       error = null;
-      List data = response.data;
-      allergy = data.map((e) => AllergyModel.fromJson(e)).toList();
+      notifyListeners();
+
+      final result = await ApiClient().get<List<dynamic>>('allergic/list');
+
+      if (result.isSuccess) {
+        final data = result.data ?? [];
+        allergy = data.map((e) => AllergyModel.fromJson(e as Map<String, dynamic>)).toList();
+      } else {
+        error = result.error?.toString() ?? 'Failed to load allergies';
+      }
     } catch (e) {
-      error = e.toString();
+      error = 'Failed to load allergies: $e';
     } finally {
       isLoading = false;
       notifyListeners();

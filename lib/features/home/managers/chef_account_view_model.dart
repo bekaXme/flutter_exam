@@ -1,50 +1,53 @@
-import 'dart:developer' as dev;
-import 'package:flutter/cupertino.dart';
-import '../../../core/result/result.dart';
+import 'package:flutter/material.dart';
 import '../../../core/services/client.dart';
 import '../../../data/models/chef_account_model.dart';
 
 class ChefAccountVM extends ChangeNotifier {
-  ChefAccountVM() {
-    fetchChefAccount();
-  }
-
-  bool isLoading = true;
-  String? _error;
+  final int? id;
+  String? error;
+  bool isLoading = false;
   List<ChefAccountModel> chefAccountList = [];
 
+  ChefAccountVM({this.id}) {
+    if (id != null) {
+      fetchChefAccount();
+    }
+  }
+
   Future<void> fetchChefAccount() async {
+    if (id == null) {
+      error = 'No ID provided';
+      notifyListeners();
+      return;
+    }
+
     try {
-      dev.log('Fetching chef account data...');
-      final Result<dynamic> result = await ApiClient().get('top-chefs/list');
-      dev.log('API Result: $result');
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      print('Fetching chef account for id: $id'); // Debug log
+      final result = await ApiClient().get<List<dynamic>>('chef-account/id/$id');
 
       if (result.isSuccess) {
-        final data = result.value;
-        if (data is List) {
-          chefAccountList = data
-              .map((json) => ChefAccountModel.fromJson(json))
-              .toList()
-              .cast<ChefAccountModel>();
-          dev.log('Parsed chefs: $chefAccountList');
-          _error = null;
-        } else {
-          _error = 'Invalid data format';
-          chefAccountList = [];
-        }
+        final data = result.data ?? [];
+        print('API Response: $data'); // Debug log for response
+
+        chefAccountList = data
+            .map((e) => ChefAccountModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        print('Chef Account List: $chefAccountList'); // Debug log for parsed data
       } else {
-        _error = result.error?.toString() ?? 'Unknown error';
-        chefAccountList = [];
+        error = result.error?.toString() ?? 'Failed to load chef account';
+        print('API Error: $error'); // Debug log for error
       }
     } catch (e) {
-      _error = 'Error: $e';
-      chefAccountList = [];
-      dev.log('Error fetching data: $e');
+      error = 'Failed to load chef account: $e';
+      print('Exception: $error'); // Debug log for exceptions
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
-
-  String? get error => _error;
 }

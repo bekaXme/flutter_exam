@@ -44,6 +44,7 @@ dependencies:
   hive: ^2.2.3
   path_provider: ^2.1.5
   json_annotation: ^4.9.0
+  cached_network_image: ^3.3.1  # Add this line
 
 dev_dependencies:
   flutter_test:

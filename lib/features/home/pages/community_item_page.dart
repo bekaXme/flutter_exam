@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exam/features/home/pages/search_delegate.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_exam/colors.dart';
 import '../managers/community_view_model.dart';
@@ -15,7 +18,7 @@ class CommunityItemPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: SvgPicture.asset('assets/icons/back-arrow.svg'),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/home'),
         ),
         backgroundColor: AppColors.backgroundColor,
         title: const Text(
@@ -25,14 +28,25 @@ class CommunityItemPage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go('/notification_main');
+            },
             icon: const Icon(
               Icons.notifications,
               color: AppColors.pinkIconBack,
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                ),
+                builder: (context) => const CustomSearchSheet(),
+              );
+            },
             icon: const Icon(Icons.search, color: AppColors.pinkIconBack),
           ),
         ],
@@ -180,43 +194,51 @@ class CommunityItemPage extends StatelessWidget {
         },
       ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.only(bottom: 40, left: 70, right: 70),
+        margin: EdgeInsets.only(bottom: 40.h, left: 40.w, right: 40.w),
         decoration: BoxDecoration(
-          color: AppColors.pinkIconBack,
-          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+          ),
+          borderRadius: BorderRadius.circular(30.r),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(
-                'assets/icons/home.svg',
-                color: Colors.white,
+        child: Container(
+          width: 280.w,
+          height: 60.h,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFD5D69),
+            borderRadius: BorderRadius.circular(30.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                onPressed: () {
+                  context.go('/home');
+                },
+                icon: SvgPicture.asset('assets/icons/home.svg'),
               ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(
-                'assets/icons/categories.svg',
-                color: Colors.white,
+              IconButton(
+                onPressed: () {
+                  context.go('/community');
+                },
+                icon: SvgPicture.asset('assets/icons/community.svg'),
               ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(
-                'assets/icons/community.svg',
-                color: Colors.white,
+              IconButton(
+                onPressed: () {
+                  context.go('/categoriesPage');
+                },
+                icon: SvgPicture.asset('assets/icons/categories.svg'),
               ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(
-                'assets/icons/profile.svg',
-                color: Colors.white,
+              IconButton(
+                onPressed: () {
+                  context.go('/myProfile');
+                },
+                icon: SvgPicture.asset('assets/icons/profile.svg'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

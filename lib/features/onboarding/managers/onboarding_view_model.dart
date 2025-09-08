@@ -16,7 +16,7 @@ class OnBoardingMainViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var response = await ApiClient().get("onboarding/inspired");
+      var response = await ApiClient().get("onboarding/list");
 
       if (response.statusCode != 200) {
         throw Exception('Failed to load onboarding items');

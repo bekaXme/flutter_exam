@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
 import 'package:flutter_exam/features/home/managers/reviews_view_model.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class LeaveReviewPage extends StatelessWidget {
@@ -14,6 +16,7 @@ class LeaveReviewPage extends StatelessWidget {
       child: Consumer<ReviewsVM>(
         builder: (context, vm, child) {
           return Scaffold(
+            extendBody: true,
             backgroundColor: AppColors.backgroundColor,
             appBar: AppBar(
               backgroundColor: AppColors.backgroundColor,
@@ -226,8 +229,7 @@ class LeaveReviewPage extends StatelessWidget {
                                       const SizedBox(height: 24),
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pop(context); // close dialog
-                                          Navigator.pop(context); // go back to home (optional)
+                                          context.go('/home');
                                         },
                                         child: const Text(
                                           'Go To Home',
@@ -252,27 +254,55 @@ class LeaveReviewPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 32),
-
-                  // Bottom Navigation
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 24),
-                    decoration: BoxDecoration(
-                      color: AppColors.pinkIconBack,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        SvgPicture.asset("assets/icons/home.svg"),
-                        SvgPicture.asset("assets/icons/chat.svg"),
-                        SvgPicture.asset("assets/icons/layers.svg"),
-                        const Icon(Icons.circle,
-                            color: Colors.white, size: 8),
-                      ],
-                    ),
-                  )
                 ],
+              ),
+            ),
+            bottomNavigationBar: Container(
+              margin: EdgeInsets.only(bottom: 40.h, left: 40.w, right: 40.w),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                ),
+                borderRadius: BorderRadius.circular(30.r),
+              ),
+              child: Container(
+                width: 280.w,
+                height: 60.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFD5D69),
+                  borderRadius: BorderRadius.circular(30.r),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        context.go('/home');
+                      },
+                      icon: SvgPicture.asset('assets/icons/home.svg'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/community');
+                      },
+                      icon: SvgPicture.asset('assets/icons/community.svg'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/categoriesPage');
+                      },
+                      icon: SvgPicture.asset('assets/icons/categories.svg'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.go('/myProfile');
+                      },
+                      icon: SvgPicture.asset('assets/icons/profile.svg'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

@@ -1,37 +1,40 @@
 class ReviewsModel {
-  final String reviewerPhoto;
-  final String reviewerUserName;
-  final String reviewerComment;
+  final int reviewId;
   final String productPhoto;
   final String productName;
   final int rating;
+  final int reviewsCount;
+  final String reviewerPhoto;
+  final String reviewerUserName;
   final String firstName;
   final String lastName;
-  final int reviewsCount;
+  final String reviewerComment;
 
   ReviewsModel({
-    required this.reviewerPhoto,
-    required this.reviewerUserName,
-    required this.reviewerComment,
+    required this.reviewId,
     required this.productPhoto,
     required this.productName,
     required this.rating,
+    required this.reviewsCount,
+    required this.reviewerPhoto,
+    required this.reviewerUserName,
     required this.firstName,
     required this.lastName,
-    required this.reviewsCount,
+    required this.reviewerComment,
   });
 
   factory ReviewsModel.fromJson(Map<String, dynamic> json) {
     return ReviewsModel(
-      reviewerPhoto: json['user']['profilePhoto'],
-      reviewerUserName: json['user']['username'],
-      reviewerComment: json['description'] ?? '', // Using description as fallback
-      productPhoto: json['photo'],
-      productName: json['title'],
-      rating: (json['rating'] is double ? json['rating'].toInt() : json['rating'] as int),
-      firstName: json['user']['firstName'],
-      lastName: json['user']['lastName'],
-      reviewsCount: (json['reviewsCount'] is double ? json['reviewsCount'].toInt() : json['reviewsCount'] as int),
+      reviewId: json['reviewId'] ?? json['id'] ?? 0,
+      productPhoto: json['productPhoto'] ?? '',
+      productName: json['productName'] ?? '',
+      rating: (json['rating'] as num?)?.toInt() ?? 0,
+      reviewsCount: json['reviewsCount'] ?? 0,
+      reviewerPhoto: json['reviewerPhoto'] ?? '',
+      reviewerUserName: json['reviewerUserName'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      reviewerComment: json['reviewerComment'] ?? '',
     );
   }
 }

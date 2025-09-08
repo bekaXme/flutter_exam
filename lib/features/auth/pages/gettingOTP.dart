@@ -193,7 +193,7 @@ class _GettingOTPState extends State<GettingOTP> {
               ),
             ),
             Spacer(),
-            BottomContinueButton(routerLocation: '/forgotPassword'),
+            BottomContinueButton(routerLocation: '/home'),
           ],
         ),
       ),

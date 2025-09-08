@@ -1,17 +1,26 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_exam/colors.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../managers/reviews_view_model.dart';
+import '../../../colors.dart';
 
-class ReviewsPage extends StatelessWidget {
+class ReviewsPage extends StatefulWidget {
   const ReviewsPage({super.key});
+
+  @override
+  State<ReviewsPage> createState() => _ReviewsPageState();
+}
+
+class _ReviewsPageState extends State<ReviewsPage> {
+  final Set<int> favoriteReviews = {};
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ReviewsVM(),
+      create: (_) => ReviewsVM()..fetchMyReviews(),
       child: Consumer<ReviewsVM>(
         builder: (context, vm, child) {
           print('Reviewer List: ${vm.reviewerList}'); // Debug
@@ -30,7 +39,14 @@ class ReviewsPage extends StatelessWidget {
             backgroundColor: AppColors.backgroundColor,
             appBar: AppBar(
               backgroundColor: AppColors.backgroundColor,
-              leading: SvgPicture.asset('assets/icons/back-arrow.svg'),
+              leading: IconButton(
+                onPressed: () => context.pop(),
+                icon: SvgPicture.asset(
+                  'assets/icons/back-arrow.svg',
+                  semanticsLabel: 'Back',
+                  placeholderBuilder: (context) => const Icon(Icons.arrow_back),
+                ),
+              ),
               title: const Text(
                 'Reviews',
                 style: TextStyle(
@@ -44,21 +60,23 @@ class ReviewsPage extends StatelessWidget {
             body: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.w),
                   color: AppColors.pinkIconBack,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.network(
-                          review.productPhoto,
-                          width: 162,
-                          height: 163,
+                        borderRadius: BorderRadius.circular(14.r),
+                        child: CachedNetworkImage(
+                          imageUrl: review.productPhoto,
+                          width: 162.w,
+                          height: 163.h,
                           fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => const Center(child: Text('Failed to load image')),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,6 +88,8 @@ class ReviewsPage extends StatelessWidget {
                                 fontSize: 16,
                                 color: Colors.white,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             Row(
                               children: List.generate(
@@ -77,7 +97,7 @@ class ReviewsPage extends StatelessWidget {
                                     (index) => Icon(
                                   Icons.star,
                                   color: index < review.rating ? Colors.white : Colors.grey,
-                                  size: 16,
+                                  size: 16.w,
                                 ),
                               ),
                             ),
@@ -88,19 +108,21 @@ class ReviewsPage extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             Row(
-                              spacing: 10,
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(14),
-                                  child: Image.network(
-                                    review.reviewerPhoto,
-                                    width: 20,
-                                    height: 20,
+                                  borderRadius: BorderRadius.circular(14.r),
+                                  child: CachedNetworkImage(
+                                    imageUrl: review.reviewerPhoto,
+                                    width: 20.w,
+                                    height: 20.h,
                                     fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) => const Center(child: Text('Failed to load image')),
                                   ),
                                 ),
+                                SizedBox(width: 10.w),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -119,16 +141,50 @@ class ReviewsPage extends StatelessWidget {
                                       ),
                                     ),
                                   ],
-                                )
+                                ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             ElevatedButton(
                               onPressed: () {
-                                context.goNamed('/leaveReview');
+                                context.go('/leaveReview');
                               },
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                              child: const Text('Add Review', style: TextStyle(color: AppColors.pinkIconBack)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                              ),
+                              child: const Text(
+                                'Add Review',
+                                style: TextStyle(color: AppColors.pinkIconBack),
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  final reviewId = review.reviewId;
+                                  if (favoriteReviews.contains(reviewId)) {
+                                    favoriteReviews.remove(reviewId);
+                                  } else {
+                                    favoriteReviews.add(reviewId);
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(5.w),
+                                width: 35.w,
+                                height: 35.h,
+                                decoration: BoxDecoration(
+                                  color: favoriteReviews.contains(review.reviewId) ? Colors.red : Colors.white,
+                                  borderRadius: BorderRadius.circular(100.r),
+                                ),
+                                child: SvgPicture.asset(
+                                  'assets/icons/heart.svg',
+                                  color: favoriteReviews.contains(review.reviewId) ? Colors.white : Colors.red,
+                                  semanticsLabel: 'Favorite',
+                                  placeholderBuilder: (context) => const Icon(Icons.favorite_border),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -136,9 +192,9 @@ class ReviewsPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
+                Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: const Text(
                     'Comments',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
@@ -154,47 +210,129 @@ class ReviewsPage extends StatelessWidget {
                       final item = vm.reviewerList[index];
                       return ListTile(
                         leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.network(item.reviewerPhoto, width: 40, height: 40, fit: BoxFit.cover),
+                          borderRadius: BorderRadius.circular(20.r),
+                          child: CachedNetworkImage(
+                            imageUrl: item.reviewerPhoto,
+                            width: 40.w,
+                            height: 40.h,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                            errorWidget: (context, url, error) => const Center(child: Text('Failed to load image')),
+                          ),
                         ),
-                        title: Text('@${item.reviewerUserName}', style: const TextStyle(color: Colors.white)),
+                        title: Text(
+                          '@${item.reviewerUserName}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item.reviewerComment, style: const TextStyle(color: Colors.white70)),
+                            Text(
+                              item.reviewerComment,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
                             Row(
                               children: List.generate(
                                 5,
                                     (i) => Icon(
                                   Icons.star,
                                   color: i < item.rating ? Colors.yellow : Colors.grey,
-                                  size: 16,
+                                  size: 16.w,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        trailing: Text('${index == 0 ? '15 Mins Ago' : index == 1 ? '40 Mins Ago' : '1 Hr Ago'}',
-                            style: const TextStyle(color: Colors.white70)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${index == 0 ? '15 Mins Ago' : index == 1 ? '40 Mins Ago' : '1 Hr Ago'}',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            SizedBox(width: 8.w),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  final reviewId = item.reviewId;
+                                  if (favoriteReviews.contains(reviewId)) {
+                                    favoriteReviews.remove(reviewId);
+                                  } else {
+                                    favoriteReviews.add(reviewId);
+                                  }
+                                });
+                              },
+                              child: SvgPicture.asset(
+                                'assets/icons/heart.svg',
+                                color: favoriteReviews.contains(item.reviewId) ? Colors.red : Colors.grey,
+                                width: 20.w,
+                                height: 20.h,
+                                semanticsLabel: 'Favorite',
+                                placeholderBuilder: (context) => const Icon(Icons.favorite_border),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.only(bottom: 36, left: 60, right: 60),
-                  padding: const EdgeInsets.all(8),
+                  margin: EdgeInsets.only(bottom: 36.h, left: 60.w, right: 60.w),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: AppColors.pinkIconBack,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      SvgPicture.asset('assets/icons/home.svg'),
-                      SvgPicture.asset('assets/icons/community.svg'),
-                      SvgPicture.asset('assets/icons/categories.svg'),
-                      SvgPicture.asset('assets/icons/profile.svg'),
+                    borderRadius: BorderRadius.circular(30.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
+                  ),
+                  child: Container(
+                    width: 280.w,
+                    height: 60.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.pinkIconBack,
+                      borderRadius: BorderRadius.circular(30.r),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          onPressed: () => context.go('/home'),
+                          icon: SvgPicture.asset(
+                            'assets/icons/home.svg',
+                            semanticsLabel: 'Home',
+                            placeholderBuilder: (context) => const Icon(Icons.home),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => context.go('/community'),
+                          icon: SvgPicture.asset(
+                            'assets/icons/community.svg',
+                            semanticsLabel: 'Community',
+                            placeholderBuilder: (context) => const Icon(Icons.group),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => context.go('/categories'),
+                          icon: SvgPicture.asset(
+                            'assets/icons/categories.svg',
+                            semanticsLabel: 'Categories',
+                            placeholderBuilder: (context) => const Icon(Icons.category),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => context.go('/profile'),
+                          icon: SvgPicture.asset(
+                            'assets/icons/profile.svg',
+                            semanticsLabel: 'Profile',
+                            placeholderBuilder: (context) => const Icon(Icons.person),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

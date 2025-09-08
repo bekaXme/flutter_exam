@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'core/routing/routers.dart' as AppRouter;
 import 'data/adapters/my_profile_adapter.dart';
 import 'features/home/managers/community_view_model.dart';
+import 'features/home/managers/trend_recipes_view_model.dart';
 import 'features/home/managers/view_model.dart';
 import 'features/home/pages/home_page.dart';
 
@@ -19,6 +20,7 @@ void main() async {
   final box = await Hive.openBox('my_profile');
   final settingsbox = await Hive.openBox<Map>('settings');
   print('Box opened: ${box.isOpen}');
+  final favoritesBox = await Hive.openBox<String>('favorites');
   await Hive.openBox('my_recipes'); // Open recipes box
   runApp(
     MultiProvider(
@@ -26,6 +28,7 @@ void main() async {
         Provider(create: (_) => ApiClient()),
         Provider(create: (context) => AuthenticationRepository(client: context.read())),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => TrendRecipesVM()..fetchTrendRecipes()),
         ChangeNotifierProvider(create: (_) => CommunityMainVM()..fetchCommunityData()),
       ],
       child: MainAccountPage(),

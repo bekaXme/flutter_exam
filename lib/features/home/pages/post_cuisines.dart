@@ -15,6 +15,7 @@ class CreateRecipePage extends StatelessWidget {
       child: Consumer<CuisineVM>(
         builder: (context, vm, _) {
           return Scaffold(
+            extendBody: true,
             backgroundColor: const Color(0xFF1B0C0C), // dark background
             appBar: AppBar(
               backgroundColor: const Color(0xFF1B0C0C),

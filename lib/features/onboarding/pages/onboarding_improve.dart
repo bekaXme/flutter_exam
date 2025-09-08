@@ -39,15 +39,6 @@ class _OnBoardingImproveState extends State<OnBoardingImprove> {
             final data = vm.onboarding[1]; // Second item (order 2)
 
             return Scaffold(
-              appBar: AppBar(
-                backgroundColor: AppColors.backgroundColor,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.pinkIconBack),
-                  onPressed: () {
-                    context.goNamed('/home');
-                  },
-                ),
-              ),
               body: Stack(
                 children: [
                   Positioned.fill(
@@ -101,7 +92,7 @@ class _OnBoardingImproveState extends State<OnBoardingImprove> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                context.goNamed('/categories');
+                                context.goNamed('/onboardinglastPage');
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.pinkIcon,

@@ -19,7 +19,6 @@ class OnboardingPageFirst {
       title: json['title'] as String,
       subtitle: json['subtitle'] as String,
       image: json['image'] as String,
-      // ✅ String, not List
       order: json['order'] as int,
     );
   }

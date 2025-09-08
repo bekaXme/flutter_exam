@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exam/colors.dart';
+import 'package:flutter_exam/features/home/managers/trending_page_view_model.dart';
+import 'package:flutter_exam/features/home/pages/search_delegate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import '../../bottomPages/app_bar_bottom_pages.dart';
 import '../managers/appbar_bottom_view_model.dart';
 import '../managers/recent_recipes_view_model.dart';
 import '../managers/trend_recipes_view_model.dart';
@@ -27,7 +32,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  final List<String> _images  = ['assets/icons/home.svg', 'assets/icons/community.svg', 'assets/icons/big-tick.svg', 'assets/icons/profile.svg'];
+  final List<String> _images = [
+    'assets/icons/home.svg',
+    'assets/icons/community.svg',
+    'assets/icons/big-tick.svg',
+    'assets/icons/profile.svg',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -39,10 +50,12 @@ class _HomePageState extends State<HomePage> {
         ChangeNotifierProvider(
           create: (_) => RecentRecipesVM()..fetchRecentRecipes(),
         ),
+        ChangeNotifierProvider(create: (_) => TrendingRecipesVM()),
         ChangeNotifierProvider(create: (_) => MyRecipesVM()..fetchMyRecipes()),
         ChangeNotifierProvider(create: (_) => TopChefsVM()..fetchChefs()),
       ],
       child: Scaffold(
+        extendBody: true,
         backgroundColor: AppColors.backgroundColor,
         appBar: AppBar(
           backgroundColor: AppColors.backgroundColor,
@@ -69,39 +82,115 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           actions: [
-            buildIconButton(Icons.notifications),
+            Container(
+              padding: EdgeInsets.all(5),
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: AppColors.pinkIcon,
+                borderRadius: BorderRadiusGeometry.circular(16),
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.go('/notification_main');
+                },
+                icon: Icon(Icons.notifications_none, color: Colors.white),
+              ),
+            ),
             SizedBox(width: 12.w),
-            buildIconButton(Icons.search),
+            Container(
+              padding: EdgeInsets.all(5),
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: AppColors.pinkIcon,
+                borderRadius: BorderRadiusGeometry.circular(16),
+              ),
+              child: IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                    ),
+                    builder: (context) => const CustomSearchSheet(),
+                  );
+                },
+                icon: Icon(Icons.search, color: Colors.white),
+              ),
+            ),
             SizedBox(width: 8.w),
           ],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(60.h),
             child: Consumer<AppbarBottomVM>(
               builder: (context, vm, child) {
+                if (vm.isLoading) {
+                  return const SizedBox(
+                    height: 60,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (vm.error != null) {
+                  return SizedBox(
+                    height: 60,
+                    child: Center(
+                      child: Text(
+                        vm.error!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  );
+                }
+
+                if (vm.appBarBottomList.isEmpty) {
+                  return const SizedBox(
+                    height: 60,
+                    child: Center(
+                      child: Text(
+                        "No categories",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                }
+
                 return SizedBox(
                   height: 60.h,
-                  child: ListView.builder(
+                  child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
                     itemCount: vm.appBarBottomList.length,
+                    separatorBuilder: (_, __) => SizedBox(width: 10.w),
                     itemBuilder: (context, index) {
                       final category = vm.appBarBottomList[index];
-                      final bool isFirst = index == 0;
+                      final bool isSelected = vm.selectedCategory == category.title;
+
                       return GestureDetector(
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Clicked on ${category.title}'),
+                          vm.updateSelectedCategory(category.title);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AppbarBottomPages(
+                                categoryTitle: category.title,
+                                recipes: context.read<TrendRecipesVM>().trendRecipes,
+                              ),
                             ),
                           );
                         },
                         child: Container(
                           width: 85.w,
-                          height: 15.h,
-                          margin: EdgeInsets.only(right: 10.w, top: 15.h),
+                          margin: EdgeInsets.only(top: 15.h),
                           decoration: BoxDecoration(
-                            color: isFirst ? Colors.red : Colors.transparent,
+                            color: isSelected ? Colors.red : Colors.transparent,
                             borderRadius: BorderRadius.circular(10.r),
+                            border: Border.all(
+                              color: AppColors.pinkIconBack,
+                              width: 1.5,
+                            ),
                           ),
                           alignment: Alignment.center,
                           child: Text(
@@ -109,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: isFirst ? Colors.white : AppColors.pinkIconBack,
+                              color: isSelected ? Colors.white : AppColors.pinkIconBack,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -144,11 +233,7 @@ class _HomePageState extends State<HomePage> {
                   // TRENDING RECIPES BOSHLANISHI
                   GestureDetector(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Clicked on Trending Recipe Image'),
-                        ),
-                      );
+                      context.go('/trendingRecipes');
                     },
                     child: Stack(
                       children: [
@@ -284,7 +369,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       vm.trendRecipes.isNotEmpty
                                           ? recipe!.TrendingRecipesTime
-                                          .toString()
+                                                .toString()
                                           : '',
                                       style: TextStyle(
                                         fontSize: 14.sp,
@@ -307,7 +392,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       vm.trendRecipes.isNotEmpty
                                           ? recipe!.TrendingRecipesRating
-                                          .toString()
+                                                .toString()
                                           : '',
                                       style: TextStyle(
                                         fontSize: 14.sp,
@@ -373,7 +458,10 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(left: 8.0.w, bottom: 8.h),
+                              padding: EdgeInsets.only(
+                                left: 8.0.w,
+                                bottom: 8.h,
+                              ),
                               child: Text(
                                 'Your Recipes',
                                 style: TextStyle(
@@ -387,30 +475,28 @@ class _HomePageState extends State<HomePage> {
                               height: 200.h,
                               child: GridView.builder(
                                 gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 12,
-                                  crossAxisSpacing: 12,
-                                  childAspectRatio: 3 / 4,
-                                ),
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 12,
+                                      crossAxisSpacing: 12,
+                                      childAspectRatio: 3 / 4,
+                                    ),
                                 itemCount: vm.myRecipesList.length,
                                 itemBuilder: (context, index) {
                                   final recipe = vm.myRecipesList[index];
                                   return GestureDetector(
                                     onTap: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Clicked on ${recipe.title} Image'),
-                                        ),
-                                      );
+                                      context.go('/yourRecipes');
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16.r),
+                                        borderRadius: BorderRadius.circular(
+                                          16.r,
+                                        ),
                                       ),
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Stack(
                                             children: [
@@ -419,10 +505,16 @@ class _HomePageState extends State<HomePage> {
                                                 height: 162.h,
                                                 child: ClipRRect(
                                                   borderRadius:
-                                                  BorderRadius.only(
-                                                    topLeft: Radius.circular(16.r),
-                                                    topRight: Radius.circular(16.r),
-                                                  ),
+                                                      BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(
+                                                              16.r,
+                                                            ),
+                                                        topRight:
+                                                            Radius.circular(
+                                                              16.r,
+                                                            ),
+                                                      ),
                                                   child: Image.network(
                                                     recipe.photo,
                                                     height: 120.h,
@@ -436,15 +528,17 @@ class _HomePageState extends State<HomePage> {
                                                 right: 8.w,
                                                 child: Container(
                                                   padding: EdgeInsets.all(6.r),
-                                                  decoration: const BoxDecoration(
-                                                    color: Colors.white,
-                                                    shape: BoxShape.circle,
-                                                  ),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color: Colors.white,
+                                                        shape: BoxShape.circle,
+                                                      ),
                                                   child: SvgPicture.asset(
                                                     'assets/icons/heart.svg',
                                                     width: 12.w,
                                                     height: 12.h,
-                                                    color: AppColors.pinkIconBack,
+                                                    color:
+                                                        AppColors.pinkIconBack,
                                                   ),
                                                 ),
                                               ),
@@ -455,7 +549,8 @@ class _HomePageState extends State<HomePage> {
                                             height: 68.h,
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius: BorderRadius.circular(20.r),
+                                              borderRadius:
+                                                  BorderRadius.circular(20.r),
                                             ),
                                             child: Column(
                                               children: [
@@ -468,14 +563,14 @@ class _HomePageState extends State<HomePage> {
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding:
-                                                  EdgeInsets.symmetric(
+                                                  padding: EdgeInsets.symmetric(
                                                     horizontal: 8.w,
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Text(
-                                                        recipe.rating.toString(),
+                                                        recipe.rating
+                                                            .toString(),
                                                         style: TextStyle(
                                                           fontSize: 12.sp,
                                                           color: AppColors
@@ -561,19 +656,15 @@ class _HomePageState extends State<HomePage> {
                               child: GridView.builder(
                                 scrollDirection: Axis.horizontal,
                                 gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1,
-                                ),
-                                itemCount: vm.TopChefsList.length,
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 1,
+                                    ),
+                                itemCount: vm.topChefsList.length,
                                 itemBuilder: (context, index) {
-                                  final chef = vm.TopChefsList[index];
+                                  final chef = vm.topChefsList[index];
                                   return GestureDetector(
                                     onTap: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Clicked on ${chef.name} Image'),
-                                        ),
-                                      );
+                                      context.go('/chefs');
                                     },
                                     child: Column(
                                       children: [
@@ -581,10 +672,10 @@ class _HomePageState extends State<HomePage> {
                                           width: 82.w,
                                           height: 74.h,
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(20.r),
-                                            child: Image.network(
-                                              chef.photo,
+                                            borderRadius: BorderRadius.circular(
+                                              20.r,
                                             ),
+                                            child: Image.network(chef.photo),
                                           ),
                                         ),
                                         Text(
@@ -638,9 +729,9 @@ class _HomePageState extends State<HomePage> {
                         height: 100.h,
                         child: GridView.builder(
                           gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                          ),
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                              ),
                           itemCount: vm.RecentRecipesList.length,
                           itemBuilder: (context, index) {
                             final recipe = vm.RecentRecipesList[index];
@@ -648,7 +739,9 @@ class _HomePageState extends State<HomePage> {
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Clicked on Recently Added Image'),
+                                    content: Text(
+                                      'Clicked on Recently Added Image',
+                                    ),
                                   ),
                                 );
                               },
@@ -657,7 +750,9 @@ class _HomePageState extends State<HomePage> {
                                   Stack(
                                     children: [
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(20.r),
+                                        borderRadius: BorderRadius.circular(
+                                          20.r,
+                                        ),
                                         child: Image.network(
                                           recipe.photo,
                                           width: 168.w,
@@ -696,10 +791,7 @@ class _HomePageState extends State<HomePage> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent, // start fully transparent
-                Colors.black.withOpacity(0.4), // fade to darker
-              ],
+              colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
             ),
             borderRadius: BorderRadius.circular(30.r),
           ),
@@ -707,27 +799,37 @@ class _HomePageState extends State<HomePage> {
             width: 280.w,
             height: 60.h,
             decoration: BoxDecoration(
-              color: const Color(0xFFFD5D69), // pink background
+              color: const Color(0xFFFD5D69),
               borderRadius: BorderRadius.circular(30.r),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(_images.length, (index) {
-                final bool isSelected = _selectedIndex == index;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
+              children: [
+                IconButton(
+                  onPressed: () {
+                    context.go('/home');
                   },
-                  child: SvgPicture.asset(
-                    _images[index],
-                    width: 20.w,
-                    height: 20.h,
-                    color: isSelected ? Colors.white : Colors.white,
-                  ),
-                );
-              }),
+                  icon: SvgPicture.asset('assets/icons/home.svg'),
+                ),
+                IconButton(
+                  onPressed: () {
+                    context.go('/community');
+                  },
+                  icon: SvgPicture.asset('assets/icons/community.svg'),
+                ),
+                IconButton(
+                  onPressed: () {
+                    context.go('/categoriesPage');
+                  },
+                  icon: SvgPicture.asset('assets/icons/categories.svg'),
+                ),
+                IconButton(
+                  onPressed: () {
+                    context.go('/myProfile');
+                  },
+                  icon: SvgPicture.asset('assets/icons/profile.svg'),
+                ),
+              ],
             ),
           ),
         ),

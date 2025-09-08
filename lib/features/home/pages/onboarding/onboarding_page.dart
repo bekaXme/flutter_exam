@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -37,7 +36,7 @@ class _OnboardingPageState extends State<OnboardingPage>
 
     // Move to next page after 2.5s
     Timer(const Duration(seconds: 3), () {
-      context.go('/cuisinePost');
+      context.go('/onboarding_second');
     });
   }
 

@@ -1,13 +1,17 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_exam/data/models/my_recipes_model.dart';
 import '../../../core/services/client.dart';
 import '../../../data/models/appbar_bottom_model.dart';
 
 class AppbarBottomVM extends ChangeNotifier {
   String? error;
-  bool isLoading = true;
+  bool isLoading = false;
   List<AppBarBottomModel> appBarBottomList = [];
   String? selectedCategory;
+
+  AppbarBottomVM() {
+    fetchAppBar();
+  }
+
   void updateSelectedCategory(String category) {
     selectedCategory = category;
     notifyListeners();
@@ -16,17 +20,26 @@ class AppbarBottomVM extends ChangeNotifier {
   Future<void> fetchAppBar() async {
     try {
       isLoading = true;
+      error = null;
+      appBarBottomList = []; // Clear previous data
       notifyListeners();
 
-      var response = await ApiClient().get('categories/list');
-      if (response != 200) {
-        throw Exception('Failed to load categories');
+      final result = await ApiClient().get<List<dynamic>>('categories/list');
+
+      if (result.isSuccess) {
+        final data = result.data ?? [];
+        appBarBottomList = data.map((e) => AppBarBottomModel.fromJson(e as Map<String, dynamic>)).toList();
+        // Auto-select first category if list is not empty
+        if (appBarBottomList.isNotEmpty) {
+          selectedCategory = appBarBottomList.first.title;
+        } else {
+          selectedCategory = null; // Reset if no categories
+        }
+      } else {
+        error = result.error?.toString() ?? 'Failed to load categories';
       }
-      error = null;
-      List data = response.data;
-      appBarBottomList = data.map((e) => AppBarBottomModel.fromJson(e)).toList();
     } catch (e) {
-      error = e.toString();
+      error = 'Failed to load categories: $e';
     } finally {
       isLoading = false;
       notifyListeners();

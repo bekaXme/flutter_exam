@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_exam/colors.dart';
 import '../../../data/models/auth_model.dart';
 import '../../home/managers/view_model.dart';
@@ -17,9 +18,9 @@ class _LogInState extends State<LogIn> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isPasswordVisible = false;
+  final storage = const FlutterSecureStorage();
 
-  get storage => null;
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -31,21 +32,26 @@ class _LogInState extends State<LogIn> {
   void _logIn() {
     if (_formKey.currentState!.validate()) {
       final authModel = AuthModel(
-        email: _emailController.text,
-        password: _passwordController.text,
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
+
       Provider.of<AuthViewModel>(context, listen: false).loginEvent(
         authModel: authModel,
-        onSuccess: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Log In Successful!')),
-          );
+        onSuccess: () async {
+          // Store credentials securely
+          await storage.write(key: 'email', value: authModel.email);
+          await storage.write(key: 'password', value: authModel.password);
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Log In Successful!')));
           context.goNamed('community');
         },
         onError: (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Log In Failed: $error')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Log In Failed: $error')));
         },
       );
     }
@@ -54,6 +60,7 @@ class _LogInState extends State<LogIn> {
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
@@ -76,89 +83,71 @@ class _LogInState extends State<LogIn> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 150),
+              const SizedBox(height: 120),
+
+              // Email field
               const Text(
                 'Email',
                 style: TextStyle(color: Colors.white, fontSize: 15),
               ),
               const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.pinkIcon,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: TextFormField(
-                  controller: _emailController,
-                  style: const TextStyle(color: Colors.black),
-                  decoration: const InputDecoration(
-                    hintText: 'example@example.com',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
+              _buildInputField(
+                controller: _emailController,
+                hint: 'example@example.com',
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty)
+                    return 'Please enter your email';
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
               ),
+
               const SizedBox(height: 20),
+
+              // Password field
               const Text(
                 'Password',
                 style: TextStyle(color: Colors.white, fontSize: 15),
               ),
               const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.pinkIcon,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: TextFormField(
-                  controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  style: const TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.grey[800],
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
+              _buildInputField(
+                controller: _passwordController,
+                hint: 'Password',
+                obscureText: !_isPasswordVisible,
+                suffix: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.grey[800],
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
                   },
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty)
+                    return 'Please enter your password';
+                  return null;
+                },
               ),
-              const SizedBox(height: 100),
+
+              const SizedBox(height: 80),
+
+              // Buttons
               Center(
                 child: Column(
-                  children: [ ElevatedButton(
-                      onPressed: () async{
-                        if (_passwordController.text.isNotEmpty) {
-                            await storage.write(key: 'password', value: _passwordController.text);
-                        }else{
-                          context.goNamed('/signUp');
-                        }
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        context.go('/home');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.pink,
@@ -168,12 +157,16 @@ class _LogInState extends State<LogIn> {
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 100,
-                          vertical: 12,
+                          vertical: 14,
                         ),
                       ),
-                      child: const Text(
-                        'Log In',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Text(
+                          'Log In',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -186,12 +179,10 @@ class _LogInState extends State<LogIn> {
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 100,
-                          vertical: 12,
+                          vertical: 14,
                         ),
                       ),
-                      onPressed: () {
-                        context.goNamed('signUp');
-                      },
+                      onPressed: () => context.goNamed('/signUp'),
                       child: const Text(
                         'Sign Up',
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -200,25 +191,35 @@ class _LogInState extends State<LogIn> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
+
+              // Forgot password
               Center(
                 child: TextButton(
                   onPressed: () {
-                    // TODO: Implement forgot password
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Forgot Password not implemented')),
+                      const SnackBar(
+                        content: Text('Forgot Password not implemented'),
+                      ),
                     );
                   },
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(color: Colors.white70),
+                  child: TextButton(
+                    onPressed: () => context.goNamed('/forgotPassword'),
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(color: Colors.white70),
+                    ),
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
+
+              // Social login
               Center(
                 child: Text(
-                  'or sign up with',
+                  'or sign in with',
                   style: TextStyle(color: Colors.white60),
                 ),
               ),
@@ -235,12 +236,13 @@ class _LogInState extends State<LogIn> {
                   Icon(FontAwesomeIcons.whatsapp, color: Colors.white),
                 ],
               ),
+
               const SizedBox(height: 20),
+
+              // Bottom link
               Center(
                 child: TextButton(
-                  onPressed: () {
-                    context.goNamed('signUp');
-                  },
+                  onPressed: () => context.goNamed('signUp'),
                   child: const Text(
                     "Don't have an account? Sign Up",
                     style: TextStyle(color: Colors.white),
@@ -250,6 +252,39 @@ class _LogInState extends State<LogIn> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Reusable input field
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hint,
+    bool obscureText = false,
+    Widget? suffix,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.pinkIcon,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        style: const TextStyle(color: Colors.black),
+        decoration: InputDecoration(
+          hintText: hint,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          suffixIcon: suffix,
+        ),
+        keyboardType: keyboardType,
+        validator: validator,
       ),
     );
   }
