@@ -9,7 +9,7 @@ class ForgotPasswordMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(390, 844), // Set your base design size
+      designSize: const Size(430, 932), // Set your base design size
       minTextAdapt: true,
       builder: (_, __) => MaterialApp(
         home: Scaffold(

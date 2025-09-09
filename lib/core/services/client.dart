@@ -7,7 +7,7 @@ class ApiClient {
 
   ApiClient() : _dio = Dio(
     BaseOptions(
-      baseUrl: "http://192.168.0.103:8888/api/v1/",
+      baseUrl: "http://192.168.8.55:8888/api/v1/",
       connectTimeout: const Duration(seconds: 10), // Add timeout
       receiveTimeout: const Duration(seconds: 10),
       validateStatus: (status) => status != null && status >= 200 && status < 300, // Validate 2xx statuses
